@@ -3,7 +3,8 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { gsap, useGSAP } from "@/lib/gsap";
-import StartButton from "@/components/Buttons/StartButton";
+import dynamic from "next/dynamic";
+const StartButon1 = dynamic(() => import("@/components/Buttons/StartButon1"), { ssr: false });
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -96,7 +97,7 @@ export default function Home() {
             href="/map"
             
           >
-            <StartButton />
+            <StartButon1 />
           </Link>
         </div>
       </main>
