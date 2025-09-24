@@ -68,17 +68,6 @@ export default function DataPortalPage() {
 
   return (
     <div ref={scope} className="min-h-screen bg-neutral-950 text-neutral-100 p-6">
-      <header className="sticky top-0 z-30 w-full border-b border-white/10 bg-neutral-900/80 backdrop-blur">
-        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-white text-lg sm:text-xl font-semibold">Kaalnetra</Link>
-          <nav className="flex items-center gap-6 text-sm sm:text-base text-neutral-200">
-            <Link href="/">Home</Link>
-            <Link href="/map">Map</Link>
-            <Link href="/dataportal" className="text-white">Data Portal</Link>
-            <Link href="/prediction-analysis">Prediction Analysis</Link>
-          </nav>
-        </div>
-      </header>
 
       <main className="mx-auto max-w-4xl">
         {/* Back */}

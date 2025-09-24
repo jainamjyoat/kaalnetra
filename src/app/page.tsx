@@ -3,7 +3,15 @@ import AnimatedBackground from "@/components/AnimatedBackground";
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen w-full overflow-hidden text-white" style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop")', backgroundSize: "cover", backgroundPosition: "center" }}>
+    <div
+      className="relative min-h-screen w-full overflow-hidden text-white"
+      style={{
+        backgroundImage:
+          'url("https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920&auto=format&fit=crop")',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       {/* Background video */}
       <video
         className="absolute inset-0 h-full w-full object-cover"
@@ -23,25 +31,13 @@ export default function Home() {
 
       {/* Dark overlay for readability */}
       <div className="absolute inset-0 bg-black/50" />
-      <header className="absolute inset-x-0 top-0 z-20">
-        <div className="mx-auto max-w-6xl px-8 py-5 flex items-center justify-between">
-          <div className="text-white text-xl sm:text-2xl font-semibold">Kaalnetra</div>
-          <nav className="flex items-center gap-8 sm:gap-10 text-base sm:text-lg text-white">
-            <Link href="/">Home</Link>
-            <Link href="/map">Map</Link>
-            <Link href="/dataportal">Data Portal</Link>
-            <Link href="/prediction-analysis">Prediction Analysis</Link>
-          </nav>
-        </div>
-      </header>
 
       {/* Content */}
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 text-center">
-        <h1 className="mb-4 text-4xl font-semibold tracking-tight sm:text-6xl">
-          Kaalnetra Flora Atlas
-        </h1>
+        <h1 className="mb-4 text-4xl font-semibold tracking-tight sm:text-6xl">Kaalnetra Flora Atlas</h1>
         <p className="mx-auto mb-8 max-w-2xl text-base text-white/90 sm:text-lg">
-          Explore real-time flowering and plant phenology across the globe. Discover what blooms where, when, and why — powered by interactive maps and rich environmental context.
+          Explore real-time flowering and plant phenology across the globe. Discover what blooms where, when, and why —
+          powered by interactive maps and rich environmental context.
         </p>
         <div className="flex gap-4">
           <Link
@@ -50,9 +46,8 @@ export default function Home() {
           >
             Get Started
           </Link>
-                  </div>
+        </div>
       </main>
-
-          </div>
+    </div>
   );
 }

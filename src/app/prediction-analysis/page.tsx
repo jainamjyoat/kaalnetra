@@ -196,17 +196,6 @@ export default function PredictionAnalysisPage() {
 
   return (
     <div ref={scope} className="min-h-screen bg-neutral-950 text-neutral-100 p-6">
-      <header className="sticky top-0 z-30 w-full border-b border-white/10 bg-neutral-900/80 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-white text-lg sm:text-xl font-semibold">Kaalnetra</Link>
-          <nav className="flex items-center gap-6 text-sm sm:text-base text-neutral-200">
-            <Link href="/">Home</Link>
-            <Link href="/map">Map</Link>
-            <Link href="/dataportal">Data Portal</Link>
-            <Link href="/prediction-analysis" className="text-white">Prediction Analysis</Link>
-          </nav>
-        </div>
-      </header>
       <div className="mx-auto max-w-7xl space-y-6">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
