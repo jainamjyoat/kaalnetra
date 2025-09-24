@@ -12,8 +12,8 @@
     "gsap": "^3.13.0",
     "leaflet": "^1.9.4",
     "next": "15.5.4",
-    "react": "^19.0.0-rc.1",
-    "react-dom": "^19.0.0-rc.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-leaflet": "^5.0.0-rc.2",
     "three": "^0.180.0"
   },
