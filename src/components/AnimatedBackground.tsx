@@ -9,7 +9,7 @@ import * as THREE from "three";
  */
 export default function AnimatedBackground() {
   const mountRef = useRef<HTMLDivElement | null>(null);
-  const cleanupRef = useRef<() => void>();
+  const cleanupRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const mount = mountRef.current!;
