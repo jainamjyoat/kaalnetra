@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { gsap, useGSAP } from "@/lib/gsap";
+import StartButton from "@/components/Buttons/StartButton";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -93,9 +94,9 @@ export default function Home() {
         <div className="flex gap-4">
           <Link
             href="/map"
-            className="hero-cta inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-white/90 transform-gpu will-change-transform"
+            
           >
-            Get Started
+            <StartButton />
           </Link>
         </div>
       </main>
