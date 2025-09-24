@@ -24,7 +24,7 @@ export default function Home() {
       {/* Background video */}
       <video
         ref={videoRef}
-        className="absolute inset-0 h-full w-full object-cover z-0"
+        className="absolute inset-0 h-full w-full object-cover z-0 object-[50%_40%] md:object-[50%_35%]"
         autoPlay
         muted
         loop

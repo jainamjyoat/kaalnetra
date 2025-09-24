@@ -145,15 +145,6 @@ export default function FloraMapPage() {
 
   return (
     <div className="min-h-screen w-full">
-      <div className="h-[64px] w-full border-b border-white/10 bg-black text-white">
-        <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4">
-          <a href="/" className="font-semibold">
-            Kaalnetra Flora Atlas
-          </a>
-          <span className="text-sm text-white/70">Interactive Bloom Map</span>
-        </div>
-      </div>
-
       <div className="relative min-h-[calc(100vh-64px)] w-full">
         <div ref={mapContainerRef} className="h-full w-full" />
       </div>
