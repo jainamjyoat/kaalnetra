@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { gsap, useGSAP } from "@/lib/gsap";
 import dynamic from "next/dynamic";
+import Shuffle from "@/components/Shuffle";
 const StartButon1 = dynamic(() => import("@/components/Buttons/StartButon1"), { ssr: false });
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const [syncTick, setSyncTick] = useState(0);
 
   useEffect(() => {
     const v = videoRef.current;
@@ -19,6 +21,11 @@ export default function Home() {
     if (p && typeof (p as any).catch === "function") {
       (p as Promise<void>).catch(() => {});
     }
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => setSyncTick(t => t + 1), 4000);
+    return () => clearInterval(id);
   }, []);
 
   useGSAP(() => {
@@ -87,7 +94,37 @@ export default function Home() {
 
       {/* Content */}
       <main className="relative z-30 flex min-h-screen flex-col items-center justify-center px-6 text-center">
-        <h1 className="hero-title mb-4 text-4xl font-semibold tracking-tight sm:text-6xl">Kaalnetra Flora Atlas</h1>
+        <h1 className="hero-title mb-8 sm:mb-10 text-4xl sm:text-6xl font-semibold tracking-tight">
+          <Shuffle
+            key={`title-sync-${syncTick}-k`}
+            text="Kaalnetra"
+            tag="span"
+            className="normal-case"
+            style={{ fontSize: "inherit", lineHeight: "inherit" }}
+            triggerOnce
+            triggerOnHover={false}
+          />
+          <span className="mx-4 sm:mx-6" />
+          <Shuffle
+            key={`title-sync-${syncTick}-f`}
+            text="Flora"
+            tag="span"
+            className="normal-case text-blue-400"
+            style={{ fontSize: "inherit", lineHeight: "inherit" }}
+            triggerOnce
+            triggerOnHover={false}
+          />
+          <span className="mx-4 sm:mx-6" />
+          <Shuffle
+            key={`title-sync-${syncTick}-a`}
+            text="Atlas"
+            tag="span"
+            className="normal-case text-white-400"
+            style={{ fontSize: "inherit", lineHeight: "inherit" }}
+            triggerOnce
+            triggerOnHover={false}
+          />
+        </h1>
         <p className="hero-copy mx-auto mb-8 max-w-2xl text-base text-white/90 sm:text-lg">
           Explore real-time flowering and plant phenology across the globe. Discover what blooms where, when, and why —
           powered by interactive maps and rich environmental context.
