@@ -5,6 +5,7 @@ import Link from "next/link";
 import { gsap, useGSAP } from "@/lib/gsap";
 import dynamic from "next/dynamic";
 import Shuffle from "@/components/Shuffle";
+
 const StartButon1 = dynamic(() => import("@/components/Buttons/StartButon1"), { ssr: false });
 
 export default function Home() {
@@ -91,6 +92,8 @@ export default function Home() {
       
       {/* Dark overlay for readability */}
       <div className="hero-overlay absolute inset-0 bg-black/50 z-20" />
+
+
 
       {/* Content */}
       <main className="relative z-30 flex min-h-screen flex-col items-center justify-center px-6 text-center">
