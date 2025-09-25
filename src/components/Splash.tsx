@@ -72,9 +72,28 @@ export default function SplashCursor({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pathname = usePathname();
   const isHome = pathname === '/';
+  const isMap = pathname?.startsWith('/map');
+  const skipSplash = isHome || isMap;
+  const depsKey = JSON.stringify([
+    SIM_RESOLUTION,
+    DYE_RESOLUTION,
+    CAPTURE_RESOLUTION,
+    DENSITY_DISSIPATION,
+    VELOCITY_DISSIPATION,
+    PRESSURE,
+    PRESSURE_ITERATIONS,
+    CURL,
+    SPLAT_RADIUS,
+    SPLAT_FORCE,
+    SHADING,
+    COLOR_UPDATE_SPEED,
+    BACK_COLOR,
+    TRANSPARENT,
+    skipSplash
+  ]);
 
   useEffect(() => {
-    if (isHome) return;
+    if (skipSplash) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -1267,25 +1286,9 @@ export default function SplashCursor({
         updatePointerUpData(pointer);
       }
     });
-  }, [
-    SIM_RESOLUTION,
-    DYE_RESOLUTION,
-    CAPTURE_RESOLUTION,
-    DENSITY_DISSIPATION,
-    VELOCITY_DISSIPATION,
-    PRESSURE,
-    PRESSURE_ITERATIONS,
-    CURL,
-    SPLAT_RADIUS,
-    SPLAT_FORCE,
-    SHADING,
-    COLOR_UPDATE_SPEED,
-    BACK_COLOR,
-    TRANSPARENT,
-    isHome
-  ]);
+  }, [depsKey]);
 
-  if (isHome) return null;
+  if (skipSplash) return null;
 
   return (
     <div className="fixed top-0 left-0 z-50 pointer-events-none w-full h-full">
