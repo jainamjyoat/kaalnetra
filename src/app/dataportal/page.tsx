@@ -70,7 +70,7 @@ export default function DataPortalPage() {
     <div ref={scope} className="min-h-screen bg-neutral-950 text-neutral-100 p-6">
 
       <main className="mx-auto max-w-4xl">
-        {/* Back */}
+        
 
         {/* Card */}
         <section data-section className="rounded-xl border border-white/10 bg-neutral-900">
