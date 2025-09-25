@@ -8,7 +8,9 @@
     "start": "next start"
   },
   "dependencies": {
+    "@googlemaps/markerclusterer": "^2.6.2",
     "@gsap/react": "^2.1.2",
+    "@vis.gl/react-google-maps": "^1.5.5",
     "gsap": "^3.13.0",
     "leaflet": "^1.9.4",
     "motion": "^12.23.21",
@@ -21,6 +23,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/google.maps": "^3.58.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
