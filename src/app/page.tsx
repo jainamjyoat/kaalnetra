@@ -112,7 +112,7 @@ export default function Home() {
             key={`title-sync-${syncTick}-f`}
             text="Flora"
             tag="span"
-            className="normal-case text-blue-400"
+            className="normal-case text-emerald-400"
             style={{ fontSize: "inherit", lineHeight: "inherit" }}
             triggerOnce
             triggerOnHover={false}
