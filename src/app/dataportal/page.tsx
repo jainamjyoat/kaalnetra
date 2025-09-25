@@ -70,18 +70,7 @@ export default function DataPortalPage() {
     <div ref={scope} className="min-h-screen bg-neutral-950 text-neutral-100 p-6">
 
       <main className="mx-auto max-w-4xl">
-        {/* Back */}
-        <div className="mb-6">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-              <path fillRule="evenodd" d="M10.53 4.47a.75.75 0 010 1.06L5.81 10.25H21a.75.75 0 010 1.5H5.81l4.72 4.72a.75.75 0 11-1.06 1.06l-6-6a.75.75 0 010-1.06l6-6a.75.75 0 011.06 0z" clipRule="evenodd" />
-            </svg>
-            Back to Home
-          </Link>
-        </div>
+        
 
         {/* Card */}
         <section data-section className="rounded-xl border border-white/10 bg-neutral-900">

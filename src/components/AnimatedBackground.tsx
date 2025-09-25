@@ -107,7 +107,7 @@ export default function AnimatedBackground() {
   return (
     <div
       ref={mountRef}
-      className="pointer-events-none absolute inset-0 -z-0"
+      className="pointer-events-none absolute inset-0 z-10"
       aria-hidden
     />
   );

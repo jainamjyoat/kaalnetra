@@ -24,3 +24,26 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Transparent scrollbars - always */
+/* Firefox */
+html, body {
+  scrollbar-width: none;
+  scrollbar-color: transparent transparent;
+}
+
+/* Chromium/Edge/Safari (WebKit) */
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  background: transparent;
+  display: none;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 8px;
+  border: none;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
