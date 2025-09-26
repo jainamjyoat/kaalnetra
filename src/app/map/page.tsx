@@ -11,7 +11,7 @@ type PhenologyDetails = {
   peakBloom: string;
   region: string;
   climate: string;
-  researchCentre: { name: string; url?: string; location?: string };
+  researchCentre?: { name: string; url?: string; location?: string };
 };
 type FlowerLocation = {
   id: string;

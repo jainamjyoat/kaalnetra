@@ -19,6 +19,7 @@
     "react-dom": "^19.0.0",
     "react-leaflet": "^5.0.0-rc.2",
     "styled-components": "^6.1.19",
+    "tailwind-merge": "^3.3.1",
     "three": "^0.180.0"
   },
   "devDependencies": {
