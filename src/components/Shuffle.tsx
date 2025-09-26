@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import type { JSX as ReactJSX } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText as GSAPSplitText } from 'gsap/SplitText';
@@ -57,7 +58,7 @@ const Shuffle: React.FC<ShuffleProps> = ({
   respectReducedMotion = true,
   triggerOnHover = true
 }) => {
-  const ref = useRef<HTMLElement | null>(null);
+  const ref = useRef<HTMLSpanElement | null>(null);
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -356,9 +357,13 @@ const Shuffle: React.FC<ShuffleProps> = ({
   };
 
   const classes = `${baseTw} ${ready ? 'visible' : 'invisible'} ${className}`.trim();
-  const Tag = (tag || 'p') as keyof JSX.IntrinsicElements;
+  const Tag = (tag || 'p') as keyof ReactJSX.IntrinsicElements;
 
-  return <Tag ref={ref as any} className={classes} style={commonStyle}>{text}</Tag>;
+  return (
+    <Tag className={classes} style={commonStyle}>
+      <span ref={ref} className="shuffle-target">{text}</span>
+    </Tag>
+  );
 };
 
 export default Shuffle;
