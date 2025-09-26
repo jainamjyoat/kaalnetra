@@ -1,8 +1,350 @@
 'use client';
 
+// --- Types and flower locations for phenology-rich map ---
+type LifeStage = { stage: string; description: string };
+type PhenologyDetails = {
+  lifeCycleStages: LifeStage[];
+  climateImpact: string[];
+  analysis: string;
+  temperature: { min: number; max: number; unit: string };
+  bloomingPeriod: string;
+  peakBloom: string;
+  region: string;
+  climate: string;
+  researchCentre: { name: string; url?: string; location?: string };
+};
+type FlowerLocation = {
+  id: string;
+  name: string;
+  scientificName?: string;
+  position: { lat: number; lng: number };
+  emoji?: string;
+  accentColor?: string;
+  details: PhenologyDetails;
+};
+const FLOWER_LOCATIONS: FlowerLocation[] = [
+  // Japan
+  {
+    id: 'tokyo-sakura',
+    name: 'Cherry Blossom (Sakura)',
+    scientificName: 'Prunus serrulata',
+    position: { lat: 35.6762, lng: 139.6503 },
+    emoji: '🌸',
+    accentColor: '#f472b6',
+    details: {
+      lifeCycleStages: [
+        { stage: 'Bud Formation', description: 'Buds form in late winter as the temperature rises.' },
+        { stage: 'Bloom', description: 'Full bloom usually in March–April.' },
+        { stage: 'Petal Fall', description: 'Petals drop after about 1–2 weeks.' },
+        { stage: 'Leaf Expansion', description: 'Green leaves emerge post-bloom.' },
+      ],
+      climateImpact: [
+        'Bloom timing advances with warming.',
+        'Late frosts damage buds.'
+      ],
+      analysis: 'Urban warmth affects early blooms.',
+      temperature: { min: 2, max: 18, unit: '°C' },
+      bloomingPeriod: 'March–April',
+      peakBloom: 'Early April',
+      region: 'Tokyo, Japan',
+      climate: 'Temperate',
+    },
+  },
+  // Netherlands
+  {
+    id: 'amsterdam-tulip',
+    name: 'Tulip',
+    scientificName: 'Tulipa gesneriana',
+    position: { lat: 52.3702, lng: 4.8952 },
+    emoji: '🌷',
+    accentColor: '#fb7185',
+    details: {
+      lifeCycleStages: [
+        { stage: 'Planting', description: 'Bulbs planted in autumn.' },
+        { stage: 'Sprout', description: 'Sprouts emerge as winter ends.' },
+        { stage: 'Bloom', description: 'Bright flowers in Dutch fields.' },
+        { stage: 'Senescence', description: 'Leaves yellow then die back.' },
+      ],
+      climateImpact: [
+        'Needs winter chill.',
+        'Heat shortens bloom.'
+      ],
+      analysis: 'Fields bloom mid-late April.',
+      temperature: { min: 3, max: 15, unit: '°C' },
+      bloomingPeriod: 'April–May',
+      peakBloom: 'End April',
+      region: 'Amsterdam Area, NL',
+      climate: 'Maritime',
+    },
+  },
+  // India (Lotus)
+  {
+    id: 'delhi-lotus',
+    name: 'Lotus',
+    scientificName: 'Nelumbo nucifera',
+    position: { lat: 28.6139, lng: 77.209 },
+    emoji: '🪷',
+    accentColor: '#ed81c8',
+    details: {
+      lifeCycleStages: [
+        { stage: 'Sprouting', description: 'Lotus roots develop as water warms.' },
+        { stage: 'Leaf Emergence', description: 'Large leaves unfurl.' },
+        { stage: 'Bud', description: 'Pink or white buds appear.' },
+        { stage: 'Bloom', description: 'Spectacular blooms above water.' },
+      ],
+      climateImpact: [
+        'Needs calm, shallow water.',
+        'Flowers best in warm, sunny ponds.'
+      ],
+      analysis: 'India’s national flower. Blooms June–Sept.',
+      temperature: { min: 16, max: 35, unit: '°C' },
+      bloomingPeriod: 'June–September',
+      peakBloom: 'July',
+      region: 'Delhi, India',
+      climate: 'Monsoonal',
+    },
+  },
+  // USA (Sunflower)
+  {
+    id: 'usa-sunflower',
+    name: 'Sunflower',
+    scientificName: 'Helianthus annuus',
+    position: { lat: 39.0997, lng: -94.5786 }, // Kansas City
+    emoji: '🌻',
+    accentColor: '#fbbf24',
+    details: {
+      lifeCycleStages: [
+        { stage: 'Seed', description: 'Seeds planted in spring.' },
+        { stage: 'Growth', description: 'Stems and heads develop.' },
+        { stage: 'Bloom', description: 'Bright yellow heads peak in July.' },
+        { stage: 'Seeds Dry', description: 'Seeds mature late summer.' },
+      ],
+      climateImpact: [
+        'Loves sun, deep soil.',
+        'Drought lowers yield.'
+      ],
+      analysis: 'Midwest US icon.',
+      temperature: { min: 14, max: 32, unit: '°C' },
+      bloomingPeriod: 'June–August',
+      peakBloom: 'July',
+      region: 'Midwest, USA',
+      climate: 'Continental',
+    },
+  },
+  // South Africa (Protea)
+  {
+    id: 'ct-protea',
+    name: 'Protea',
+    scientificName: 'Protea cynaroides',
+    position: { lat: -33.9249, lng: 18.4241 }, // Cape Town
+    emoji: '🌺',
+    accentColor: '#fbbf24',
+    details: {
+      lifeCycleStages: [
+        { stage: 'Sprout', description: 'Protea seedlings emerge in wet season.' },
+        { stage: 'Bud', description: 'Flower buds slowly develop.' },
+        { stage: 'Bloom', description: 'Large heads open in southern spring.' },
+        { stage: 'Seed', description: 'Seeds dispersed by wind.' },
+      ],
+      climateImpact: [
+        'Adapts to fire-prone dry ecosystem.',
+        'Drought and fire-tolerant.'
+      ],
+      analysis: 'Cape region wildflower icon.',
+      temperature: { min: 8, max: 25, unit: '°C' },
+      bloomingPeriod: 'August–November',
+      peakBloom: 'September',
+      region: 'Cape Town, South Africa',
+      climate: 'Mediterranean',
+    },
+  },
+  // Israel (Anemone)
+  {
+    id: 'israel-anemone',
+    name: 'Anemone',
+    scientificName: 'Anemone coronaria',
+    position: { lat: 31.7683, lng: 35.2137 }, // Jerusalem
+    emoji: '❣️',
+    accentColor: '#ef4444',
+    details: {
+      lifeCycleStages: [
+        { stage: 'Emergence', description: 'Red blossoms appear in early spring.' },
+        { stage: 'Full Bloom', description: 'Fields of scarlet in the “Darom Adom” festival.' },
+      ],
+      climateImpact: [
+        'Needs mild, rainy winters.',
+        'Heat causes rapid decline.'
+      ],
+      analysis: 'Israel wildflower festival highlight.',
+      temperature: { min: 7, max: 18, unit: '°C' },
+      bloomingPeriod: 'February–March',
+      peakBloom: 'Late February',
+      region: 'Jerusalem, Israel',
+      climate: 'Mediterranean',
+    },
+  },
+  // Australia (Waratah)
+  {
+    id: 'sydney-waratah',
+    name: 'Waratah',
+    scientificName: 'Telopea speciosissima',
+    position: { lat: -33.8688, lng: 151.2093 }, // Sydney
+    emoji: '🟥',
+    accentColor: '#dc2626',
+    details: {
+      lifeCycleStages: [
+        { stage: 'Growth', description: 'Leaves and buds develop in late winter.' },
+        { stage: 'Bloom', description: 'Spectacular red blooms in spring.' },
+      ],
+      climateImpact: [
+        'Tolerates dry soils.',
+        'Sensitive to root rot.'
+      ],
+      analysis: 'Famous New South Wales floral symbol.',
+      temperature: { min: 8, max: 24, unit: '°C' },
+      bloomingPeriod: 'September–November',
+      peakBloom: 'October',
+      region: 'Sydney, Australia',
+      climate: 'Temperate',
+    },
+  },
+  // UK (Bluebell)
+  {
+    id: 'uk-bluebell',
+    name: 'Bluebell',
+    scientificName: 'Hyacinthoides non-scripta',
+    position: { lat: 51.5074, lng: -0.1278 }, // London
+    emoji: '🔔',
+    accentColor: '#60a5fa',
+    details: {
+      lifeCycleStages: [
+        { stage: 'Emergence', description: 'Leaves and shoots emerge in March.' },
+        { stage: 'Full Bloom', description: 'Blue carpets in ancient woodlands.' },
+        { stage: 'Dormancy', description: 'Leaves die back by July.' },
+      ],
+      climateImpact: [
+        'Cool, damp soils vital.',
+        'Vulnerable to drought.'
+      ],
+      analysis: 'Iconic British spring flower.',
+      temperature: { min: 2, max: 16, unit: '°C' },
+      bloomingPeriod: 'April–May',
+      peakBloom: 'Late April',
+      region: 'London, UK',
+      climate: 'Temperate Atlantic',
+    },
+  },
+];
+// Removed duplicate/erroneous FLOWER_LOCATIONS definition block (clean - fixed build error)
+
+// --- END Types and flower locations ---
+
 import React, { useEffect, useState } from 'react';
 import { APIProvider, Map as GoogleMap, useMap } from '@vis.gl/react-google-maps';
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
+
+import { Marker } from '@vis.gl/react-google-maps';
+
+// FlowerMarkers component: renders markers using @vis.gl/react-google-maps
+function FlowerMarkers({ onMarkerClick }: { onMarkerClick: (flower: FlowerLocation) => void }) {
+  return (
+    <>
+      {FLOWER_LOCATIONS.map((flower) => (
+        <Marker
+          key={flower.id}
+          position={flower.position}
+          onClick={() => onMarkerClick(flower)} 
+          label={{
+            text: flower.emoji || '🌸',
+            color: '#fff',
+            fontSize: '18px',
+            fontWeight: 'bold',
+            className: undefined,
+          }}
+          icon={{
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 10,
+            fillColor: flower.accentColor || '#8ab4f8',
+            fillOpacity: 1,
+            strokeColor: '#22223b',
+            strokeWeight: 2,
+          }}
+        />
+      ))}
+    </>
+  );
+}
+
+// FlowerModal component: shows phenology and research details in an animated modal
+function FlowerModal({ open, onClose, flower }: { open: boolean; onClose: () => void; flower: FlowerLocation | null }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    if (open) { const id = requestAnimationFrame(() => setShow(true)); return () => cancelAnimationFrame(id); }
+    else { setShow(false); }
+  }, [open]);
+  if (!open || !flower) return null;
+  const accent = flower.accentColor || '#93c5fd';
+  const overlayStyle: React.CSSProperties = { position: 'fixed', inset: 0, background: 'rgba(2,6,23,0.7)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000, transition: 'opacity 250ms ease', opacity: show ? 1 : 0 };
+  const panelStyle: React.CSSProperties = { width: 'min(920px, 92vw)', maxHeight: '82vh', overflow: 'auto', background: '#0b1220', color: '#e5e7eb', border: '1px solid #1f2a44', borderRadius: 12, boxShadow: '0 20px 60px rgba(0,0,0,0.5)', transform: show ? 'translateY(0) scale(1)' : 'translateY(10px) scale(0.98)', transition: 'transform 250ms ease, opacity 250ms ease', opacity: show ? 1 : 0 };
+  const sectionStyle: React.CSSProperties = { padding: 16, borderBottom: '1px solid #111827' };
+  const chipStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 8, background: '#0f172a', border: `1px solid ${accent}40`, padding: '8px 10px', borderRadius: 999, fontSize: 13, color: '#e5e7eb', };
+  const labelStyle: React.CSSProperties = { color: '#9ca3af', fontSize: 12 };
+  const barBg: React.CSSProperties = { height: 6, background: '#0f172a', border: '1px solid #1f2a44', borderRadius: 999, overflow: 'hidden' };
+  const bar = (value: number, color = accent) => (<div style={barBg}><div style={{ width: `${value}%`, height: '100%', background: color }} /></div>);
+  return (
+    <div style={overlayStyle} onClick={onClose}>
+      <div style={panelStyle} onClick={e => e.stopPropagation()}>
+        <div style={{ position: 'sticky', top: 0, background: 'linear-gradient(180deg, rgba(15,23,42,1) 0%, rgba(15,23,42,0.85) 100%)', borderBottom: '1px solid #1f2a44', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, display: 'grid', placeItems: 'center', background: `radial-gradient(60% 60% at 50% 40%, ${accent}66, transparent)`, border: `1px solid ${accent}66`, fontSize: 20 }}>{flower.emoji || '🌼'}</div>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 600 }}>{flower.name}</div>
+              <div style={{ fontSize: 12, color: '#9ca3af' }}>{flower.scientificName || '—'}</div>
+            </div>
+          </div>
+          <button onClick={onClose} style={{ border: '1px solid #1f2a44', background: '#0f172a', color: '#e5e7eb', padding: '6px 10px', borderRadius: 8, cursor: 'pointer' }}>Close</button>
+        </div>
+        <div style={{ ...sectionStyle, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <span style={chipStyle}>Region: <strong>{flower.details.region}</strong></span>
+          <span style={chipStyle}>Climate: <strong>{flower.details.climate}</strong></span>
+          <span style={chipStyle}>Blooming Period: <strong>{flower.details.bloomingPeriod}</strong></span>
+          <span style={chipStyle}>Peak Bloom: <strong>{flower.details.peakBloom}</strong></span>
+          <span style={chipStyle}>Temperature: <strong>{`${flower.details.temperature.min}–${flower.details.temperature.max}${flower.details.temperature.unit}`}</strong></span>
+        </div>
+        <div style={sectionStyle}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: accent }}>Life Cycle Stages</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+            {flower.details.lifeCycleStages.map((s, idx) => (
+              <div key={idx} style={{ border: '1px solid #1f2a44', borderRadius: 10, padding: 12, background: '#0f172a' }}>
+                <div style={{ fontWeight: 600, marginBottom: 6 }}>{s.stage}</div>
+                <div style={{ fontSize: 13, color: '#9ca3af' }}>{s.description}</div>
+                <div style={{ marginTop: 10 }}>{bar(25 + (idx * 20) % 60)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={sectionStyle}>
+          <div style={{ display: 'grid', gap: 12, gridTemplateColumns: '1fr 1fr' }}>
+            <div style={{ border: '1px solid #1f2a44', borderRadius: 10, padding: 12, background: '#0f172a' }}>
+              <div style={{ fontWeight: 600, marginBottom: 6, color: accent }}>Climate Impact</div>
+              <ul style={{ margin: 0, paddingLeft: 18, color: '#9ca3af' }}>
+                {flower.details.climateImpact.map((c, i) => (<li key={i} style={{ marginBottom: 6 }}>{c}</li>))}
+              </ul>
+            </div>
+            <div style={{ border: '1px solid #1f2a44', borderRadius: 10, padding: 12, background: '#0f172a' }}>
+              <div style={{ fontWeight: 600, marginBottom: 6, color: accent }}>Special Analysis</div>
+              <div style={{ fontSize: 13, color: '#9ca3af' }}>{flower.details.analysis}</div>
+            </div>
+          </div>
+        </div>
+        {/* Phenology research centre section removed as this field no longer exists */}
+        <div style={{ ...sectionStyle, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {['Temperature', 'Blooming Period', 'Region', 'Peak Bloom', 'Climate'].map((k, i) => (<span key={i} style={{ ...chipStyle, border: `1px dashed ${accent}55` }}>{k}</span>))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function DrawingTools() {
   const map = useMap();
@@ -296,17 +638,20 @@ function DrawingTools() {
   return (
     <div style={{
       position: 'absolute',
-      top: '10px',
-      left: '1000px',
+      top: '80px', // Move box downward to clear navbar
+      left: '36px', // Move box left for better visibility if needed
       zIndex: 1000,
       background: '#0f172a',
       color: '#e5e7eb',
-      padding: '10px',
-      borderRadius: '8px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+      padding: '14px',
+      borderRadius: '10px',
+      boxShadow: '0 2px 18px rgba(0,0,0,0.42)',
       display: 'flex',
       flexDirection: 'column',
-      gap: '8px'
+      gap: '12px',
+      minWidth: '250px',
+      maxWidth: '350px',
+      transition: 'top 0.2s, left 0.2s',
     }}>
       <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
         <button onClick={() => handleToolSelect('select')} style={{
@@ -376,6 +721,8 @@ export default function MapPage() {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const darkMapId = 'f5a527ffab781fb81f077b38';
   const mapid = process.env.NEXT_PUBLIC_MAP_ID || darkMapId
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedFlower, setSelectedFlower] = useState<FlowerLocation | null>(null);
   
   if (!apiKey) {
   return <div>Error: API Key is missing. Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY in your .env.local file.</div>;
@@ -400,8 +747,10 @@ export default function MapPage() {
             strictBounds: true
           }}
         >
+          <FlowerMarkers onMarkerClick={f => { setSelectedFlower(f); setModalOpen(true); }} />
           <DrawingTools />
         </GoogleMap>
+        <FlowerModal open={modalOpen} flower={selectedFlower} onClose={() => setModalOpen(false)} />
       </div>
     </APIProvider>
   );
