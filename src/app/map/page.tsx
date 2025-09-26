@@ -114,7 +114,7 @@ function DrawingTools() {
       if (selectedMarker) {
         (selectedMarker.content as HTMLElement).style.border = "";
       }
-      (marker.content as HTMLElement).style.border = "2px solid #FFFF00";
+      (marker.content as HTMLElement).style.border = "2px solid #93c5fd";
       setSelectedMarker(marker);
       setMarkerInfo(`Marker Position: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
     });
@@ -171,28 +171,28 @@ function DrawingTools() {
       drawingMode: null,
       drawingControl: false,
       rectangleOptions: {
-        fillColor: '#ff0000',
-        fillOpacity: 0.3,
+        fillColor: '#8ab4f8',
+        fillOpacity: 0.2,
         strokeWeight: 2,
-        strokeColor: '#ff0000',
+        strokeColor: '#8ab4f8',
         clickable: true,
         editable: true,
         draggable: false,
       },
       circleOptions: {
-        fillColor: '#0000ff',
-        fillOpacity: 0.3,
+        fillColor: '#8ab4f8',
+        fillOpacity: 0.2,
         strokeWeight: 2,
-        strokeColor: '#0000ff',
+        strokeColor: '#8ab4f8',
         clickable: true,
         editable: true,
         draggable: false,
       },
       polygonOptions: {
-        fillColor: '#00ff00',
-        fillOpacity: 0.3,
+        fillColor: '#8ab4f8',
+        fillOpacity: 0.2,
         strokeWeight: 2,
-        strokeColor: '#00ff00',
+        strokeColor: '#8ab4f8',
         clickable: true,
         editable: true,
         draggable: false,
@@ -299,7 +299,8 @@ function DrawingTools() {
       top: '10px',
       left: '1000px',
       zIndex: 1000,
-      background: 'white',
+      background: '#0f172a',
+      color: '#e5e7eb',
       padding: '10px',
       borderRadius: '8px',
       boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
@@ -309,59 +310,59 @@ function DrawingTools() {
     }}>
       <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
         <button onClick={() => handleToolSelect('select')} style={{
-          padding: '8px 12px', border: '1px solid #ccc', borderRadius: '4px',
-          background: selectedTool === 'select' ? '#007bff' : 'white',
-          color: selectedTool === 'select' ? 'white' : 'black',
+          padding: '8px 12px', border: '1px solid #374151', borderRadius: '4px',
+          background: selectedTool === 'select' ? '#2563eb' : '#1f2937',
+          color: selectedTool === 'select' ? 'white' : '#e5e7eb',
           cursor: 'pointer', fontSize: '12px'
         }}>Select</button>
         <button onClick={() => handleToolSelect('rectangle')} style={{
-          padding: '8px 12px', border: '1px solid #ccc', borderRadius: '4px',
-          background: selectedTool === 'rectangle' ? '#007bff' : 'white',
-          color: selectedTool === 'rectangle' ? 'white' : 'black',
+          padding: '8px 12px', border: '1px solid #374151', borderRadius: '4px',
+          background: selectedTool === 'rectangle' ? '#2563eb' : '#1f2937',
+          color: selectedTool === 'rectangle' ? 'white' : '#e5e7eb',
           cursor: 'pointer', fontSize: '12px'
         }}>Rectangle</button>
         <button onClick={() => handleToolSelect('circle')} style={{
-          padding: '8px 12px', border: '1px solid #ccc', borderRadius: '4px',
-          background: selectedTool === 'circle' ? '#007bff' : 'white',
-          color: selectedTool === 'circle' ? 'white' : 'black',
+          padding: '8px 12px', border: '1px solid #374151', borderRadius: '4px',
+          background: selectedTool === 'circle' ? '#2563eb' : '#1f2937',
+          color: selectedTool === 'circle' ? 'white' : '#e5e7eb',
           cursor: 'pointer', fontSize: '12px'
         }}>Circle</button>
         <button onClick={() => handleToolSelect('triangle')} style={{
-          padding: '8px 12px', border: '1px solid #ccc', borderRadius: '4px',
-          background: selectedTool === 'triangle' ? '#007bff' : 'white',
-          color: selectedTool === 'triangle' ? 'white' : 'black',
+          padding: '8px 12px', border: '1px solid #374151', borderRadius: '4px',
+          background: selectedTool === 'triangle' ? '#2563eb' : '#1f2937',
+          color: selectedTool === 'triangle' ? 'white' : '#e5e7eb',
           cursor: 'pointer', fontSize: '12px'
         }}>Custom Shape</button>
       </div>
       <div style={{ display: 'flex', gap: '5px' }}>
         <button onClick={deleteSelectedShape} style={{
-          padding: '6px 10px', border: '1px solid #dc3545', borderRadius: '4px',
-          background: '#dc3545', color: 'white', cursor: 'pointer', fontSize: '11px'
+          padding: '6px 10px', border: '1px solid #ef4444', borderRadius: '4px',
+          background: '#991b1b', color: 'white', cursor: 'pointer', fontSize: '11px'
         }}>Delete Selected</button>
         <button onClick={clearAll} style={{
-          padding: '6px 10px', border: '1px solid #6c757d', borderRadius: '4px',
-          background: '#6c757d', color: 'white', cursor: 'pointer', fontSize: '11px'
+          padding: '6px 10px', border: '1px solid #4b5563', borderRadius: '4px',
+          background: '#374151', color: 'white', cursor: 'pointer', fontSize: '11px'
         }}>Clear All</button>
         <button onClick={generateRandomMarkers} style={{
-          padding: '6px 10px', border: '1px solid #28a745', borderRadius: '4px',
-          background: '#28a745', color: 'white', cursor: 'pointer', fontSize: '11px'
+          padding: '6px 10px', border: '1px solid #059669', borderRadius: '4px',
+          background: '#10b981', color: 'white', cursor: 'pointer', fontSize: '11px'
         }}>Generate Markers</button>
       </div>
-      <div style={{ fontSize: '10px', color: '#333', background: '#e9ecef', padding: '4px', borderRadius: '3px' }}>
+      <div style={{ fontSize: '10px', color: '#e5e7eb', background: '#0f172a', padding: '4px', borderRadius: '3px', border: '1px solid #374151' }}>
         Shapes: {shapes.length}
       </div>
       {shapeCoordinates && (
         <div style={{
-          fontSize: '10px', color: '#333', background: '#f8f9fa', padding: '8px',
-          borderRadius: '4px', maxWidth: '300px', wordBreak: 'break-all', border: '1px solid #dee2e6'
+          fontSize: '10px', color: '#e5e7eb', background: '#0f172a', padding: '8px',
+          borderRadius: '4px', maxWidth: '300px', wordBreak: 'break-all', border: '1px solid #374151'
         }}>
           <strong>Selected Shape:</strong><br />{shapeCoordinates}
         </div>
       )}
       {markerInfo && (
         <div style={{
-          fontSize: '10px', color: '#333', background: '#f8f9fa', padding: '8px',
-          borderRadius: '4px', maxWidth: '300px', wordBreak: 'break-all', border: '1px solid #dee2e6'
+          fontSize: '10px', color: '#e5e7eb', background: '#0f172a', padding: '8px',
+          borderRadius: '4px', maxWidth: '300px', wordBreak: 'break-all', border: '1px solid #374151'
         }}>
           <strong>Selected Marker:</strong><br />{markerInfo}
         </div>
@@ -373,11 +374,11 @@ function DrawingTools() {
 export default function MapPage() {
   const position = { lat: 22.5726, lng: 88.3639 };
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  const mapid = process.env.NEXT_PUBLIC_MAP_ID
+  const darkMapId = 'f5a527ffab781fb81f077b38';
+  const mapid = process.env.NEXT_PUBLIC_MAP_ID || darkMapId
   
-
-  if (!apiKey || !mapid) {
-    return <div>Error: API Key or Map ID is missing. Check your .env.local file and ensure NEXT_PUBLIC_MAP_ID is set.</div>;
+  if (!apiKey) {
+  return <div>Error: API Key is missing. Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY in your .env.local file.</div>;
   }
 
   return (
