@@ -11,7 +11,7 @@ type PhenologyDetails = {
   peakBloom: string;
   region: string;
   climate: string;
-  researchCentre: { name: string; url?: string; location?: string };
+  researchCentre?: { name: string; url?: string; location?: string };
 };
 type FlowerLocation = {
   id: string;
@@ -357,6 +357,15 @@ function DrawingTools() {
   const [markers, setMarkers] = useState<google.maps.marker.AdvancedMarkerElement[]>([]);
   const [selectedMarker, setSelectedMarker] = useState<google.maps.marker.AdvancedMarkerElement | null>(null);
   const [markerInfo, setMarkerInfo] = useState<string>('');
+  const [isMobile, setIsMobile] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.matchMedia('(max-width: 640px)').matches);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const isPointInShape = (point: google.maps.LatLng, shape: google.maps.MVCObject): boolean => {
     try {
@@ -636,83 +645,148 @@ function DrawingTools() {
   };
 
   return (
-    <div style={{
-      position: 'absolute',
-      top: '80px', // Move box downward to clear navbar
-      left: '36px', // Move box left for better visibility if needed
-      zIndex: 1000,
-      background: '#0f172a',
-      color: '#e5e7eb',
-      padding: '14px',
-      borderRadius: '10px',
-      boxShadow: '0 2px 18px rgba(0,0,0,0.42)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '12px',
-      minWidth: '250px',
-      maxWidth: '350px',
-      transition: 'top 0.2s, left 0.2s',
-    }}>
-      <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-        <button onClick={() => handleToolSelect('select')} style={{
-          padding: '8px 12px', border: '1px solid #374151', borderRadius: '4px',
-          background: selectedTool === 'select' ? '#2563eb' : '#1f2937',
-          color: selectedTool === 'select' ? 'white' : '#e5e7eb',
-          cursor: 'pointer', fontSize: '12px'
-        }}>Select</button>
-        <button onClick={() => handleToolSelect('rectangle')} style={{
-          padding: '8px 12px', border: '1px solid #374151', borderRadius: '4px',
-          background: selectedTool === 'rectangle' ? '#2563eb' : '#1f2937',
-          color: selectedTool === 'rectangle' ? 'white' : '#e5e7eb',
-          cursor: 'pointer', fontSize: '12px'
-        }}>Rectangle</button>
-        <button onClick={() => handleToolSelect('circle')} style={{
-          padding: '8px 12px', border: '1px solid #374151', borderRadius: '4px',
-          background: selectedTool === 'circle' ? '#2563eb' : '#1f2937',
-          color: selectedTool === 'circle' ? 'white' : '#e5e7eb',
-          cursor: 'pointer', fontSize: '12px'
-        }}>Circle</button>
-        <button onClick={() => handleToolSelect('triangle')} style={{
-          padding: '8px 12px', border: '1px solid #374151', borderRadius: '4px',
-          background: selectedTool === 'triangle' ? '#2563eb' : '#1f2937',
-          color: selectedTool === 'triangle' ? 'white' : '#e5e7eb',
-          cursor: 'pointer', fontSize: '12px'
-        }}>Custom Shape</button>
-      </div>
-      <div style={{ display: 'flex', gap: '5px' }}>
-        <button onClick={deleteSelectedShape} style={{
-          padding: '6px 10px', border: '1px solid #ef4444', borderRadius: '4px',
-          background: '#991b1b', color: 'white', cursor: 'pointer', fontSize: '11px'
-        }}>Delete Selected</button>
-        <button onClick={clearAll} style={{
-          padding: '6px 10px', border: '1px solid #4b5563', borderRadius: '4px',
-          background: '#374151', color: 'white', cursor: 'pointer', fontSize: '11px'
-        }}>Clear All</button>
-        <button onClick={generateRandomMarkers} style={{
-          padding: '6px 10px', border: '1px solid #059669', borderRadius: '4px',
-          background: '#10b981', color: 'white', cursor: 'pointer', fontSize: '11px'
-        }}>Generate Markers</button>
-      </div>
-      <div style={{ fontSize: '10px', color: '#e5e7eb', background: '#0f172a', padding: '4px', borderRadius: '3px', border: '1px solid #374151' }}>
-        Shapes: {shapes.length}
-      </div>
-      {shapeCoordinates && (
-        <div style={{
-          fontSize: '10px', color: '#e5e7eb', background: '#0f172a', padding: '8px',
-          borderRadius: '4px', maxWidth: '300px', wordBreak: 'break-all', border: '1px solid #374151'
-        }}>
-          <strong>Selected Shape:</strong><br />{shapeCoordinates}
+    isMobile ? (
+      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 1000, pointerEvents: 'none' }}>
+        <div
+          style={{
+            margin: '0 12px 12px',
+            background: '#0f172a',
+            color: '#e5e7eb',
+            border: '1px solid #1f2a44',
+            borderRadius: 12,
+            boxShadow: '0 10px 30px rgba(0,0,0,0.45)',
+            overflow: 'hidden',
+            transform: sheetOpen ? 'translateY(0)' : 'translateY(calc(100% - 52px))',
+            transition: 'transform 250ms ease',
+            pointerEvents: 'auto',
+          }}
+        >
+          <button
+            onClick={() => setSheetOpen((s) => !s)}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              background: '#0b1220',
+              color: '#e5e7eb',
+              border: 'none',
+              borderBottom: '1px solid #1f2a44',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <div style={{ width: 36, height: 4, borderRadius: 999, background: '#334155' }} />
+          </button>
+
+          <div style={{ padding: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <button onClick={() => handleToolSelect('select')} style={{ padding: 10, border: '1px solid #374151', borderRadius: 8, background: selectedTool === 'select' ? '#2563eb' : '#1f2937', color: '#e5e7eb' }}>Select</button>
+            <button onClick={() => handleToolSelect('rectangle')} style={{ padding: 10, border: '1px solid #374151', borderRadius: 8, background: selectedTool === 'rectangle' ? '#2563eb' : '#1f2937', color: '#e5e7eb' }}>Rectangle</button>
+            <button onClick={() => handleToolSelect('circle')} style={{ padding: 10, border: '1px solid #374151', borderRadius: 8, background: selectedTool === 'circle' ? '#2563eb' : '#1f2937', color: '#e5e7eb' }}>Circle</button>
+            <button onClick={() => handleToolSelect('triangle')} style={{ padding: 10, border: '1px solid #374151', borderRadius: 8, background: selectedTool === 'triangle' ? '#2563eb' : '#1f2937', color: '#e5e7eb' }}>Custom</button>
+          </div>
+
+          <div style={{ padding: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button onClick={deleteSelectedShape} style={{ flex: 1, padding: 10, border: '1px solid #ef4444', borderRadius: 8, background: '#991b1b', color: 'white' }}>Delete</button>
+            <button onClick={clearAll} style={{ flex: 1, padding: 10, border: '1px solid #4b5563', borderRadius: 8, background: '#374151', color: 'white' }}>Clear</button>
+            <button onClick={generateRandomMarkers} style={{ flexBasis: '100%', padding: 10, border: '1px solid #059669', borderRadius: 8, background: '#10b981', color: 'white' }}>Generate Markers</button>
+          </div>
+
+          {sheetOpen && (
+            <div style={{ padding: 12, display: 'grid', gap: 8 }}>
+              <div style={{ fontSize: 12, color: '#9ca3af' }}>Shapes: {shapes.length}</div>
+              {shapeCoordinates && (
+                <div style={{ fontSize: 11, color: '#e5e7eb', background: '#0f172a', padding: 8, borderRadius: 8, border: '1px solid #374151' }}>
+                  <strong>Selected Shape:</strong><br />{shapeCoordinates}
+                </div>
+              )}
+              {markerInfo && (
+                <div style={{ fontSize: 11, color: '#e5e7eb', background: '#0f172a', padding: 8, borderRadius: 8, border: '1px solid #374151' }}>
+                  <strong>Selected Marker:</strong><br />{markerInfo}
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      )}
-      {markerInfo && (
-        <div style={{
-          fontSize: '10px', color: '#e5e7eb', background: '#0f172a', padding: '8px',
-          borderRadius: '4px', maxWidth: '300px', wordBreak: 'break-all', border: '1px solid #374151'
-        }}>
-          <strong>Selected Marker:</strong><br />{markerInfo}
+      </div>
+    ) : (
+      <div style={{
+        position: 'absolute',
+        top: '80px', // Move box downward to clear navbar
+        left: '36px', // Move box left for better visibility if needed
+        zIndex: 1000,
+        background: '#0f172a',
+        color: '#e5e7eb',
+        padding: '14px',
+        borderRadius: '10px',
+        boxShadow: '0 2px 18px rgba(0,0,0,0.42)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+        minWidth: '250px',
+        maxWidth: '350px',
+        transition: 'top 0.2s, left 0.2s',
+      }}>
+        <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+          <button onClick={() => handleToolSelect('select')} style={{
+            padding: '8px 12px', border: '1px solid #374151', borderRadius: '4px',
+            background: selectedTool === 'select' ? '#2563eb' : '#1f2937',
+            color: selectedTool === 'select' ? 'white' : '#e5e7eb',
+            cursor: 'pointer', fontSize: '12px'
+          }}>Select</button>
+          <button onClick={() => handleToolSelect('rectangle')} style={{
+            padding: '8px 12px', border: '1px solid #374151', borderRadius: '4px',
+            background: selectedTool === 'rectangle' ? '#2563eb' : '#1f2937',
+            color: selectedTool === 'rectangle' ? 'white' : '#e5e7eb',
+            cursor: 'pointer', fontSize: '12px'
+          }}>Rectangle</button>
+          <button onClick={() => handleToolSelect('circle')} style={{
+            padding: '8px 12px', border: '1px solid #374151', borderRadius: '4px',
+            background: selectedTool === 'circle' ? '#2563eb' : '#1f2937',
+            color: selectedTool === 'circle' ? 'white' : '#e5e7eb',
+            cursor: 'pointer', fontSize: '12px'
+          }}>Circle</button>
+          <button onClick={() => handleToolSelect('triangle')} style={{
+            padding: '8px 12px', border: '1px solid #374151', borderRadius: '4px',
+            background: selectedTool === 'triangle' ? '#2563eb' : '#1f2937',
+            color: selectedTool === 'triangle' ? 'white' : '#e5e7eb',
+            cursor: 'pointer', fontSize: '12px'
+          }}>Custom Shape</button>
         </div>
-      )}
-    </div>
+        <div style={{ display: 'flex', gap: '5px' }}>
+          <button onClick={deleteSelectedShape} style={{
+            padding: '6px 10px', border: '1px solid #ef4444', borderRadius: '4px',
+            background: '#991b1b', color: 'white', cursor: 'pointer', fontSize: '11px'
+          }}>Delete Selected</button>
+          <button onClick={clearAll} style={{
+            padding: '6px 10px', border: '1px solid #4b5563', borderRadius: '4px',
+            background: '#374151', color: 'white', cursor: 'pointer', fontSize: '11px'
+          }}>Clear All</button>
+          <button onClick={generateRandomMarkers} style={{
+            padding: '6px 10px', border: '1px solid #059669', borderRadius: '4px',
+            background: '#10b981', color: 'white', cursor: 'pointer', fontSize: '11px'
+          }}>Generate Markers</button>
+        </div>
+        <div style={{ fontSize: '10px', color: '#e5e7eb', background: '#0f172a', padding: '4px', borderRadius: '3px', border: '1px solid #374151' }}>
+          Shapes: {shapes.length}
+        </div>
+        {shapeCoordinates && (
+          <div style={{
+            fontSize: '10px', color: '#e5e7eb', background: '#0f172a', padding: '8px',
+            borderRadius: '4px', maxWidth: '300px', wordBreak: 'break-all', border: '1px solid #374151'
+          }}>
+            <strong>Selected Shape:</strong><br />{shapeCoordinates}
+          </div>
+        )}
+        {markerInfo && (
+          <div style={{
+            fontSize: '10px', color: '#e5e7eb', background: '#0f172a', padding: '8px',
+            borderRadius: '4px', maxWidth: '300px', wordBreak: 'break-all', border: '1px solid #374151'
+          }}>
+            <strong>Selected Marker:</strong><br />{markerInfo}
+          </div>
+        )}
+      </div>
+    )
   );
 }
 
@@ -730,7 +804,7 @@ export default function MapPage() {
 
   return (
     <APIProvider apiKey={apiKey} libraries={['drawing', 'geometry', 'marker']}>
-      <div style={{ height: "100vh", width: "100%", position: "relative" }}>
+      <div style={{ height: "100dvh", width: "100%", position: "relative" }}>
         
         
         <GoogleMap

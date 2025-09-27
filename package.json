@@ -8,8 +8,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@googlemaps/markerclusterer": "^2.6.2",
     "@gsap/react": "^2.1.2",
+    "@mui/material": "^7.3.2",
     "@vis.gl/react-google-maps": "^1.5.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

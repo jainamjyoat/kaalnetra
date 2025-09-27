@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from "next/server.js";
+import type { NextRequest } from "next/server.js";
 
 // Basic types
 type Point = [number, number]; // [lat, lng]
@@ -90,9 +91,9 @@ function randomPointsInPolygon(polygon: Point[], count: number): Point[] {
   return points;
 }
 
-export async function POST(req: Request, context: { params: { shape: string } }) {
+export async function POST(req: NextRequest, context: { params: Promise<{ shape: string }> }) {
   try {
-    const { shape } = context.params;
+    const { shape } = await context.params;
     const url = new URL(req.url);
     const count = clamp(Number(url.searchParams.get("count") || "100"), 1, 5000);
 
