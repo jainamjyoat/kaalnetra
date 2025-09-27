@@ -98,7 +98,7 @@ export default function Home() {
 
       {/* Content: HERO + FEATURES all atop fullscreen video */}
       <main className="relative z-30 flex flex-col items-center justify-center px-6 text-center min-h-screen w-full">
-        <div className="flex flex-col w-full items-center justify-center max-w-5xl mx-auto mt-16 sm:mt-24">
+        <div className="flex flex-col w-full items-center justify-center max-w-5xl mx-auto mt-30 sm:mt-34">
           <h1 className="hero-title mb-8 sm:mb-10 text-4xl sm:text-6xl font-semibold tracking-tight">
             <Shuffle
               key={`title-sync-${syncTick}-k`}
