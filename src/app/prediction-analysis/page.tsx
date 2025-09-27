@@ -195,7 +195,7 @@ export default function PredictionAnalysisPage() {
   };
 
   return (
-    <div ref={scope} className="min-h-screen bg-neutral-950 text-neutral-100 p-6">
+    <div ref={scope} className="min-h-screen bg-neutral-950 text-neutral-100 p-6 pt-24 sm:pt-28">
       <div className="mx-auto max-w-7xl space-y-6">
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
