@@ -5,6 +5,7 @@ import Link from "next/link";
 import { gsap, useGSAP } from "@/lib/gsap";
 import dynamic from "next/dynamic";
 import Shuffle from "@/components/Shuffle";
+import CircularGallery from "@/components/features/CircularGallery";
 
 const StartButon1 = dynamic(() => import("@/components/Buttons/StartButon1"), { ssr: false });
 
@@ -95,51 +96,96 @@ export default function Home() {
 
 
 
-      {/* Content */}
-      <main className="relative z-30 flex min-h-screen flex-col items-center justify-center px-6 text-center">
-        <h1 className="hero-title mb-8 sm:mb-10 text-4xl sm:text-6xl font-semibold tracking-tight">
-          <Shuffle
-            key={`title-sync-${syncTick}-k`}
-            text="Kaalnetra"
-            tag="span"
-            className="normal-case"
-            style={{ fontSize: "inherit", lineHeight: "inherit" }}
-            triggerOnce
-            triggerOnHover={false}
-          />
-          <span className="mx-4 sm:mx-6" />
-          <Shuffle
-            key={`title-sync-${syncTick}-f`}
-            text="Flora"
-            tag="span"
-            className="normal-case text-emerald-400"
-            style={{ fontSize: "inherit", lineHeight: "inherit" }}
-            triggerOnce
-            triggerOnHover={false}
-          />
-          <span className="mx-4 sm:mx-6" />
-          <Shuffle
-            key={`title-sync-${syncTick}-a`}
-            text="Atlas"
-            tag="span"
-            className="normal-case text-white-400"
-            style={{ fontSize: "inherit", lineHeight: "inherit" }}
-            triggerOnce
-            triggerOnHover={false}
-          />
-        </h1>
-        <p className="hero-copy mx-auto mb-8 max-w-2xl text-base text-white/90 sm:text-lg">
-          Explore real-time flowering and plant phenology across the globe. Discover what blooms where, when, and why —
-          powered by interactive maps and rich environmental context.
-        </p>
-        <div className="flex gap-4">
-          <Link
-            href="/map"
-            
-          >
-            <StartButon1 />
-          </Link>
+      {/* Content: HERO + FEATURES all atop fullscreen video */}
+      <main className="relative z-30 flex flex-col items-center justify-center px-6 text-center min-h-screen w-full">
+        <div className="flex flex-col w-full items-center justify-center max-w-5xl mx-auto mt-16 sm:mt-24">
+          <h1 className="hero-title mb-8 sm:mb-10 text-4xl sm:text-6xl font-semibold tracking-tight">
+            <Shuffle
+              key={`title-sync-${syncTick}-k`}
+              text="Kaalnetra"
+              tag="span"
+              className="normal-case"
+              style={{ fontSize: "inherit", lineHeight: "inherit" }}
+              triggerOnce
+              triggerOnHover={false}
+            />
+            <span className="mx-4 sm:mx-6" />
+            <Shuffle
+              key={`title-sync-${syncTick}-f`}
+              text="Flora"
+              tag="span"
+              className="normal-case text-emerald-400"
+              style={{ fontSize: "inherit", lineHeight: "inherit" }}
+              triggerOnce
+              triggerOnHover={false}
+            />
+            <span className="mx-4 sm:mx-6" />
+            <Shuffle
+              key={`title-sync-${syncTick}-a`}
+              text="Atlas"
+              tag="span"
+              className="normal-case text-white-400"
+              style={{ fontSize: "inherit", lineHeight: "inherit" }}
+              triggerOnce
+              triggerOnHover={false}
+            />
+          </h1>
+          <p className="hero-copy mx-auto mb-8 max-w-2xl text-base text-white/90 sm:text-lg">
+            Explore real-time flowering and plant phenology across the globe. Discover what blooms where, when, and why — powered by interactive maps and rich environmental context.
+          </p>
+          <div className="flex gap-4 mb-10">
+            <Link href="/map"><StartButon1 /></Link>
+          </div>
         </div>
+        {/* Features Section (on video, below hero) */}
+        <section
+          className="flex flex-col items-center justify-center w-full pt-6 sm:pt-8 pb-12 fadein-section"
+        >
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-6 text-emerald-300 anim-fadein" style={{ letterSpacing: '.03em' }}>
+            Features of Kaalnetra Flora Atlas
+          </h2>
+          <div className="flex flex-col items-center justify-center w-full" style={{ minHeight: 360 }}>
+            <CircularGallery
+              items={[
+                {
+                  emoji: "🗺️",
+                  title: "Global Map Exploration",
+                  description: "Pan, zoom, and discover flowers anywhere on earth. Animated markers show real-time data and bloom cycles."
+                },
+                {
+                  emoji: "🌸",
+                  title: "Live Flower Snapshots",
+                  description: "Tap a flower marker to view its detailed, animated phenology with blooming periods, climate info, and more."
+                },
+                {
+                  emoji: "✏️",
+                  title: "Drawing & Analysis Tools",
+                  description: "Draw a shape, select any region, and analyze local flowering phenomena, fully interactively!"
+                },
+                {
+                  emoji: "🌍",
+                  title: "Environmental Context",
+                  description: "See climate, region, and blooming period at a glance for every flower and area on the map."
+                },
+                {
+                  emoji: "🌗",
+                  title: "Beautiful Dark Mode",
+                  description: "Every detail is tuned for optimal readability and aesthetics — day or night."
+                },
+                {
+                  emoji: "🔍",
+                  title: "Discover & Compare",
+                  description: "Explore rare, seasonal, and diverse species visually and compare how climate shapes global flora."
+                },
+              ]}
+              textColor="#fff"
+              borderRadius={0.08}
+              bend={2.1}
+              scrollEase={0.032}
+              style={{ width: '100%', maxWidth: 925, height: 300, margin: '0 auto', marginTop: 0, background: 'rgba(0,0,0,0)', zIndex: 5 }}
+            />
+          </div>
+        </section>
       </main>
     </div>
   );
