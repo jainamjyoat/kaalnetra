@@ -67,7 +67,7 @@ export default function DataPortalPage() {
   }, { scope });
 
   return (
-    <div ref={scope} className="min-h-screen bg-neutral-950 text-neutral-100 p-6">
+    <div ref={scope} className="min-h-screen bg-neutral-950 text-neutral-100 p-6 pt-24 sm:pt-28">
 
       <main className="mx-auto max-w-4xl">
         
