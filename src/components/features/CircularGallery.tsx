@@ -1,5 +1,6 @@
 import { Camera, Mesh, Plane, Program, Renderer, Texture, Transform } from 'ogl';
 import { useEffect, useRef } from 'react';
+import type { CSSProperties } from 'react';
 
 type GL = Renderer['gl'];
 function debounce<T extends (...args: any[]) => void>(func: T, wait: number) {
@@ -372,7 +373,7 @@ class Media {
   }
 }
 interface AppConfig {
-  items?: { image: string; text: string }[];
+  items?: Array<FeatureCardData | { image?: string; text?: string }>;
   bend?: number;
   textColor?: string;
   borderRadius?: number;
@@ -397,7 +398,7 @@ class App {
   scene!: Transform;
   planeGeometry!: Plane;
   medias: Media[] = [];
-  mediasImages: Array<FeatureCardData | { image?: string; text: string }> = [];
+  mediasImages: Array<FeatureCardData | { image?: string; text?: string }> = [];
   screen!: { width: number; height: number };
   viewport!: { width: number; height: number };
   raf: number = 0;
@@ -459,7 +460,7 @@ class App {
     });
   }
   createMedias(
-    items: Array<FeatureCardData | { image?: string; text: string }> | undefined,
+    items: Array<FeatureCardData | { image?: string; text?: string }> | undefined,
     bend: number = 1,
     textColor: string,
     borderRadius: number,
@@ -596,14 +597,14 @@ class App {
   }
 }
 export interface CircularGalleryProps {
-  items?: { image: string; text: string }[];
+  items?: Array<FeatureCardData | { image?: string; text?: string }>;
   bend?: number;
   textColor?: string;
   borderRadius?: number;
   font?: string;
   scrollSpeed?: number;
   scrollEase?: number;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 }
 export default function CircularGallery({
   items,
@@ -616,7 +617,7 @@ export default function CircularGallery({
   style
 }: CircularGalleryProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mergedStyle = { marginTop: '48px', ...style } as React.CSSProperties;
+  const mergedStyle = { marginTop: '48px', ...style } as CSSProperties;
   useEffect(() => {
     if (!containerRef.current) return;
     const app = new App(containerRef.current, {
