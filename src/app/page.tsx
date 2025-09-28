@@ -135,7 +135,19 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
     const cardRefs2 = useRef<HTMLDivElement[]>([]);
     const [isDesktop, setIsDesktop] = useState(false);
 
-    const features2 = [...features].sort(() => Math.random() - 0.5);
+    const [features2, setFeatures2] = useState<FeatureItem[]>(features);
+
+    useEffect(() => {
+      // Shuffle only on client after mount to avoid SSR/CSR hydration mismatch
+      const arr = [...features];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      setFeatures2(arr);
+      // We intentionally exclude `features` from deps to keep one-time shuffle post-mount
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
       const checkDesktop = () => {
@@ -163,7 +175,7 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
     ) =>
       featureSet.map((feature, index) => (
         <div
-          key={index}
+          key={feature.title}
           ref={(el: HTMLDivElement | null) => {
             if (el) refs.current[index] = el;
           }}
