@@ -31,10 +31,8 @@ export interface ScrollCarouselProps {
 const useFeatureAnimations = (
   containerRef: React.MutableRefObject<HTMLDivElement | null>,
   scrollContainerRef: React.MutableRefObject<HTMLDivElement | null>,
-  scrollContainerRef2: React.MutableRefObject<HTMLDivElement | null>,
   progressBarRef: React.MutableRefObject<HTMLDivElement | null>,
   cardRefs: React.MutableRefObject<HTMLDivElement[]>,
-  cardRefs2: React.MutableRefObject<HTMLDivElement[]>,
   isDesktop: boolean,
   maxScrollHeight?: number
 ) => {
@@ -42,20 +40,15 @@ const useFeatureAnimations = (
     const ctx = gsap.context(() => {
       if (isDesktop) {
         const scrollWidth1 = scrollContainerRef.current?.scrollWidth || 0;
-        const scrollWidth2 = scrollContainerRef2.current?.scrollWidth || 0;
-        const containerWidth = containerRef.current?.offsetWidth || 0;
+                const containerWidth = containerRef.current?.offsetWidth || 0;
         const cardWidth = cardRefs.current[0]?.offsetWidth || 0;
         const viewportOffset = (containerWidth - cardWidth) / 2;
 
         const finalOffset1 = scrollWidth1 - containerWidth + viewportOffset;
-        const finalOffset2 = scrollWidth2 - containerWidth + viewportOffset;
-
+        
         const scrollDistance = maxScrollHeight || finalOffset1;
 
-        gsap.set(scrollContainerRef2.current, {
-          x: -finalOffset2 + viewportOffset * 2,
-        });
-
+        
         gsap
           .timeline({
             scrollTrigger: {
@@ -72,17 +65,7 @@ const useFeatureAnimations = (
             { x: -finalOffset1 + viewportOffset, ease: "none" }
           );
 
-        gsap
-          .timeline({
-            scrollTrigger: {
-              trigger: containerRef.current,
-              start: "top top",
-              end: () => `+=${scrollDistance}`,
-              scrub: 1,
-            },
-          })
-          .to(scrollContainerRef2.current, { x: viewportOffset, ease: "none" });
-
+        
         gsap.to(progressBarRef.current, {
           width: "100%",
           ease: "none",
@@ -94,7 +77,7 @@ const useFeatureAnimations = (
           },
         });
       } else {
-        const allCards = [...cardRefs.current, ...cardRefs2.current];
+        const allCards = [...cardRefs.current];
         allCards.forEach((card, index) => {
           if (card) {
             gsap.fromTo(
@@ -129,14 +112,12 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
   ({ features, className, maxScrollHeight }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const scrollContainerRef2 = useRef<HTMLDivElement>(null);
-    const progressBarRef = useRef<HTMLDivElement>(null);
+        const progressBarRef = useRef<HTMLDivElement>(null);
     const cardRefs = useRef<HTMLDivElement[]>([]);
-    const cardRefs2 = useRef<HTMLDivElement[]>([]);
-    const [isDesktop, setIsDesktop] = useState(false);
+        const [isDesktop, setIsDesktop] = useState(false);
 
-    const features2 = [...features].sort(() => Math.random() - 0.5);
-
+    
+    
     useEffect(() => {
       const checkDesktop = () => {
         setIsDesktop(window.matchMedia("(min-width: 768px)").matches);
@@ -149,10 +130,8 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
     useFeatureAnimations(
       containerRef,
       scrollContainerRef,
-      scrollContainerRef2,
       progressBarRef,
       cardRefs,
-      cardRefs2,
       isDesktop,
       maxScrollHeight
     );
@@ -163,11 +142,11 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
     ) =>
       featureSet.map((feature, index) => (
         <div
-          key={index}
+          key={feature.title}
           ref={(el: HTMLDivElement | null) => {
             if (el) refs.current[index] = el;
           }}
-          className="feature-card flex-shrink-0 w-full md:w-full h-full z-10 gap-4 group relative transition-all duration-300 ease-in-out"
+          className="feature-card flex-shrink-0 w-[85vw] sm:w-[70vw] md:w-[420px] lg:w-[520px] h-[240px] sm:h-[280px] md:h-[340px] lg:h-[380px] z-10 gap-4 group relative transition-all duration-300 ease-in-out"
         >
           <div
             className={cn(
@@ -222,13 +201,7 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
             {renderFeatureCards(features, cardRefs)}
           </div>
 
-          <div
-            ref={scrollContainerRef2}
-            className="flex flex-col md:flex-row gap-8 items-center h-full px-6 md:px-0 hidden xl:flex"
-          >
-            {renderFeatureCards(features2, cardRefs2)}
-          </div>
-
+          
           {isDesktop && (
             <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-64 h-2 bg-black/30 dark:bg-white/30 z-50 overflow-hidden rounded-full">
               <div
