@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import Link from "next/link";
 import { gsap, useGSAP } from "@/lib/gsap";
+import PlantButton from "@/components/Buttons/Plant";
 
 export default function DataPortalPage() {
   const features = [
@@ -115,13 +116,13 @@ export default function DataPortalPage() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
+              <PlantButton
                 data-cta
                 href="/map"
                 className="inline-flex items-center justify-center rounded-md bg-emerald-500 px-4 py-2 text-white hover:bg-emerald-600 transition-colors"
               >
                 Explore Bloom Map
-              </Link>
+              </PlantButton>
               <Link
                 data-cta
                 href="/prediction-analysis"
