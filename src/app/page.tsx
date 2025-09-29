@@ -203,7 +203,7 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
 
           
           {isDesktop && (
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-64 h-2 bg-black/30 dark:bg-white/30 z-50 overflow-hidden rounded-full">
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-64 h-2 bg-white/30 dark:bg-black/30 z-50 overflow-hidden rounded-full">
               <div
                 ref={progressBarRef}
                 className="h-full rounded-full relative overflow-hidden transition-all duration-100"
@@ -218,9 +218,9 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
           .animated-water {
             background: repeating-linear-gradient(
               -45deg,
-              rgba(0, 0, 0, 0.7) 0%,
-              rgba(0, 0, 0, 0.5) 25%,
-              rgba(0, 0, 0, 0.7) 50%
+              rgba(255, 255, 255, 0.9) 0%,
+              rgba(255, 255, 255, 0.6) 25%,
+              rgba(255, 255, 255, 0.9) 50%
             );
             background-size: 40px 40px;
             animation: waveMove 2s linear infinite;
@@ -228,9 +228,9 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
           :global(.dark) .animated-water {
             background: repeating-linear-gradient(
               -45deg,
-              rgba(255, 255, 255, 0.9) 0%,
-              rgba(255, 255, 255, 0.6) 25%,
-              rgba(255, 255, 255, 0.9) 50%
+              rgba(0, 0, 0, 0.7) 0%,
+              rgba(0, 0, 0, 0.5) 25%,
+              rgba(0, 0, 0, 0.7) 50%
             );
           }
           @keyframes waveMove {
@@ -375,7 +375,7 @@ export default function Home() {
               { icon: Moon, title: "Dark Mode Aesthetics", description: "Readable, elegant visuals optimized for nighttime viewing.", image: "Pictures/wallpaperflare.com_wallpaper (6).jpg" },
               { icon: Search, title: "Discover & Compare", description: "Find rare, seasonal, and diverse species and compare across regions.", image: "Pictures/wallpaperflare.com_wallpaper (2).jpg" }
             ]}
-            maxScrollHeight={6000}
+            maxScrollHeight={2000}
           />
         </div>
       </section>
