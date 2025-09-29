@@ -117,7 +117,7 @@ const StyledWrapper = styled.div`
   }
 
   .plant-btn:hover .icon-1 {
-    top: -250%;
+    top: -238%;
     left: 50%;
     transform: translate(-50%, 0);
     width: 50px;
@@ -154,7 +154,7 @@ const StyledWrapper = styled.div`
 
   .plant-btn:hover .icon-2 {
     position: absolute;
-    top: -200%;
+    top: -192%;
     left: 90%;
     transform: translate(-50%, 0);
     width: 75px;
@@ -191,7 +191,7 @@ const StyledWrapper = styled.div`
 
   .plant-btn:hover .icon-3 {
     position: absolute;
-    top: -130%;
+    top: -151%;
     left: 20%;
     transform: translate(-50%, 0);
     width: 60px;
@@ -218,7 +218,7 @@ const StyledWrapper = styled.div`
 
   .plant-btn:hover .icon-4 {
     position: absolute;
-    top: -300%;
+    top: -333%;
     left: 10%;
     transform: translate(-50%, 0);
     width: 85px;
@@ -245,7 +245,7 @@ const StyledWrapper = styled.div`
 
   .plant-btn:hover .icon-5 {
     position: absolute;
-    top: -350%;
+    top: -335%;
     left: 90%;
     transform: translate(-50%, 0);
     width: 85px;
