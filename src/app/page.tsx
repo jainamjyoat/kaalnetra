@@ -375,7 +375,7 @@ export default function Home() {
               { icon: Moon, title: "Dark Mode Aesthetics", description: "Readable, elegant visuals optimized for nighttime viewing.", image: "Pictures/wallpaperflare.com_wallpaper (6).jpg" },
               { icon: Search, title: "Discover & Compare", description: "Find rare, seasonal, and diverse species and compare across regions.", image: "Pictures/wallpaperflare.com_wallpaper (2).jpg" }
             ]}
-            maxScrollHeight={6000}
+            maxScrollHeight={2000}
           />
         </div>
       </section>
