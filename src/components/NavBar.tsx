@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChartNoAxes } from "./Nav/Priduction";
 import { HardDriveDownload } from "./Nav/Data";
-import { Earth } from "./Nav/Earth";
+import { Anchor } from "./Nav/Earth2.0";
 import { Rocket } from "./Nav/Home";
 
 const links = [
@@ -74,7 +74,7 @@ export default function NavBar() {
                   href={href}
                   className={`${commonClasses} flex items-center gap-1`}
                 >
-                  <Earth width={20} height={20} stroke="#ffffff" />
+                  <Anchor width={20} height={20} stroke="#ffffff" />
                   <span>{name}</span>
                 </Link>
               );
