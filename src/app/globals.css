@@ -146,6 +146,9 @@ html, body {
   }
 }
 
+/* Global: hide system cursor by default to prevent SSR flash */
+html, body { cursor: none !important; }
+
 /* SmoothCursor: force-hide system cursor over interactive elements unless on /map */
 .has-smooth-cursor button,
 .has-smooth-cursor [role="button"],
