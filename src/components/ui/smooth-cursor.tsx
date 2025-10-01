@@ -111,7 +111,7 @@ export function SmoothCursor({
   })
 
   useEffect(() => {
-    const hoverSelector = `button, [role="button"], a, input[type="button"], input[type="submit"], input[type="reset"], .btn, .button`
+    const hoverSelector = `button, [role="button"], a, input[type="button"], input[type="submit"], input[type="reset"], .btn, .button, svg, i, [data-icon], [class*="icon"], .icon, .icons, .lucide, svg[role="img"], svg[role="button"], [role="img"][tabindex], [tabindex][role="button"]`
     const updateVelocity = (currentPos: Position) => {
       const currentTime = Date.now()
       const deltaTime = currentTime - lastUpdateTime.current
@@ -127,12 +127,27 @@ export function SmoothCursor({
       lastMousePos.current = currentPos
     }
 
+    const isPointerCursor = (el: Element | null): boolean => {
+      let node: Element | null = el
+      let depth = 0
+      while (node && depth < 3) {
+        try {
+          const cur = window.getComputedStyle(node).cursor
+          if (cur === "pointer") return true
+        } catch {}
+        node = node.parentElement
+        depth++
+      }
+      return false
+    }
+
     const smoothMouseMove = (e: MouseEvent) => {
       const currentPos = { x: e.clientX, y: e.clientY }
       updateVelocity(currentPos)
 
       const el = document.elementFromPoint(currentPos.x, currentPos.y) as Element | null
-      const hovering = !!el?.closest(hoverSelector)
+      const hoveringBySelector = !!el?.closest(hoverSelector) || !!el?.matches?.(hoverSelector)
+      const hovering = hoveringBySelector || isPointerCursor(el)
       setIsHoverTarget(hovering)
       const baseScale = hovering ? 1.15 : 1
 
@@ -178,23 +193,22 @@ export function SmoothCursor({
     }
 
     const htmlEl = document.documentElement
-    // Only hide system cursor when the feature is active via body class
-    if (document.body.classList.contains("has-smooth-cursor")) {
-      htmlEl.style.cursor = "none"
-      document.body.style.cursor = "none"
-    }
+    // Hide system cursor whenever SmoothCursor is mounted
+    htmlEl.style.cursor = "none"
+    document.body.style.cursor = "none"
     window.addEventListener("mousemove", throttledMouseMove)
 
     const handleMouseDown = (e: MouseEvent) => {
       const target = e.target as Element | null
-      if (target && target.closest(hoverSelector)) {
+      if (target && (target.closest(hoverSelector) || target.matches?.(hoverSelector) || isPointerCursor(target))) {
         scale.set(0.9)
       }
     }
     const handleMouseUp = (e: MouseEvent) => {
       const pos = { x: (e as MouseEvent).clientX, y: (e as MouseEvent).clientY }
       const el = document.elementFromPoint(pos.x, pos.y) as Element | null
-      const hovering = !!el?.closest(hoverSelector)
+      const hoveringBySelector = !!el?.closest(hoverSelector) || !!el?.matches?.(hoverSelector)
+      const hovering = hoveringBySelector || isPointerCursor(el)
       scale.set(hovering ? 1.15 : 1)
     }
     window.addEventListener("mousedown", handleMouseDown)
