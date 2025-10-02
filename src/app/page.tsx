@@ -10,6 +10,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/components/lib/utils";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import Lenis from "lenis";
+import InfiniteMenu from "@/components/InfiniteMenu";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -333,6 +334,45 @@ export default function Home() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [syncTick, setSyncTick] = useState(0);
 
+  const items = [
+    {
+      image: "Pictures/wallpaperflare.com_wallpaper.jpg",
+      title: "Lavender",
+      description: "Calming scent with purple spikes and silvery foliage.",
+      features: ["Bloom: Late Spring", "Color: Purple", "Habitat: Mediterranean"],
+    },
+    {
+      image: "Pictures/wallpaperflare.com_wallpaper (1).jpg",
+      title: "Dahlia",
+      description: "Layered petals with striking symmetry and vivid colors.",
+      features: ["Bloom: Summer/Fall", "Color: Various", "Habitat: Temperate gardens"],
+    },
+    {
+      image: "Pictures/wallpaperflare.com_wallpaper (4).jpg",
+      title: "Hydrangea",
+      description: "Globes of clustered blossoms that shift color with soil pH.",
+      features: ["Bloom: Summer", "Color: Blue/Pink/White", "Habitat: Woodland edges"],
+    },
+    {
+      image: "Pictures/wallpaperflare.com_wallpaper (5).jpg",
+      title: "Orchid",
+      description: "Exotic forms and diverse patterns across thousands of species.",
+      features: ["Bloom: Varies", "Color: Diverse", "Habitat: Tropical"],
+    },
+    {
+      image: "Pictures/wallpaperflare.com_wallpaper (6).jpg",
+      title: "Sunflower",
+      description: "Heliotropic heads that follow the sun across the sky.",
+      features: ["Bloom: Summer", "Color: Yellow", "Habitat: Fields and prairies"],
+    },
+    {
+      image: "Pictures/wallpaperflare.com_wallpaper (2).jpg",
+      title: "Rose",
+      description: "Classic petals with layered fragrance and timeless charm.",
+      features: ["Bloom: Spring/Summer", "Color: Various", "Habitat: Gardens"],
+    },
+  ];
+
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -497,6 +537,15 @@ export default function Home() {
             ]}
             maxScrollHeight={2000}
           />
+        </div>
+      </section>
+
+      {/* Infinite flower menu (WebGL spheres with discs) */}
+      <section className="w-full bg-neutral-950 text-white py-20">
+        <div className="w-full max-w-6xl mx-auto px-6">
+          <div style={{ height: '600px', position: 'relative' }}>
+            <InfiniteMenu items={items} />
+          </div>
         </div>
       </section>
     </>
