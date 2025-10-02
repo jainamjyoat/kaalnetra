@@ -7,11 +7,13 @@ import dynamic from "next/dynamic";
 import Shuffle from "@/components/Shuffle";
 import { Map, Flower2, Pencil, Globe, Moon, Search, LucideIcon } from "lucide-react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Lenis from "lenis";
 import { cn } from "@/components/lib/utils";
+<<<<<<< HEAD
 import ScrollVelocity from "@/components/ScrollVelocity";
 import { SeasonalHoverCards } from "@/components/lightswind/seasonal-hover-cards";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
+=======
+>>>>>>> 16f5ae5a9788d1d73f0137beead0fe2c81c4257c
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -358,6 +360,7 @@ export default function Home() {
     return () => clearInterval(id);
   }, []);
 
+<<<<<<< HEAD
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -382,6 +385,8 @@ export default function Home() {
     };
   }, []);
 
+=======
+>>>>>>> 16f5ae5a9788d1d73f0137beead0fe2c81c4257c
   useGSAP(() => {
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
     tl.from(".hero-overlay", { opacity: 0, duration: 0.6 })
@@ -497,6 +502,7 @@ export default function Home() {
             ]}
             maxScrollHeight={2000}
           />
+<<<<<<< HEAD
         </div>
         <div className="w-full mt-20 md:mt-28">
           <ScrollVelocity
@@ -540,6 +546,8 @@ export default function Home() {
               },
             ]}
           />
+=======
+>>>>>>> 16f5ae5a9788d1d73f0137beead0fe2c81c4257c
         </div>
       </section>
     </>

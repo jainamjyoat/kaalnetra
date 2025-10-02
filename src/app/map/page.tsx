@@ -437,7 +437,7 @@ function DrawingTools() {
   if (!endpoint) return;
 
   // Call backend (falls back to relative API route if NEXT_PUBLIC_API_URL is not set)
-  const apiBase = (process.env.API_URL || '').replace(/\/+$/, '');
+  const apiBase = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/+$/, '');
   const origin = apiBase || (typeof window !== 'undefined' ? window.location.origin : '');
   const url = `${origin}/api/random-points/${endpoint}?count=100`;
   console.log('generateRandomMarkers -> POST', url, payload);
@@ -792,9 +792,9 @@ function DrawingTools() {
 
 export default function MapPage() {
   const position = { lat: 22.5726, lng: 88.3639 };
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const darkMapId = 'f5a527ffab781fb81f077b38';
-  const mapid = process.env.MAP_ID || darkMapId
+  const mapid = process.env.NEXT_PUBLIC_MAP_ID || darkMapId
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedFlower, setSelectedFlower] = useState<FlowerLocation | null>(null);
   
