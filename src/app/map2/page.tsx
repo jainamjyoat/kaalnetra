@@ -6,7 +6,22 @@ import { MarkerClusterer } from '@googlemaps/markerclusterer';
 import NavBar from '@/components/NavBar';
 import RouteLoading from '../map/loading';
 
-function DrawingTools({ darkMode, onToggleDarkMode }: { darkMode: boolean; onToggleDarkMode: () => void }) {
+// Config type
+type AppConfig = {
+  googleMapsApiKey: string;
+  apiUrl: string;
+  mapId: string;
+};
+
+function DrawingTools({ 
+  darkMode, 
+  onToggleDarkMode,
+  apiUrl 
+}: { 
+  darkMode: boolean; 
+  onToggleDarkMode: () => void;
+  apiUrl: string;
+}) {
   const map = useMap();
   const [drawingManager, setDrawingManager] = useState<google.maps.drawing.DrawingManager | null>(null);
   const [shapes, setShapes] = useState<google.maps.MVCObject[]>([]);
@@ -51,11 +66,17 @@ function DrawingTools({ darkMode, onToggleDarkMode }: { darkMode: boolean; onTog
   };
 
   const generateRandomMarkers = async () => {
-    if (!map || shapes.length === 0) return;
+    if (!map || shapes.length === 0) {
+      alert('Please draw at least one shape first!');
+      return;
+    }
 
+    // Clear existing markers
     if (markerClusterer) {
       markerClusterer.clearMarkers();
     }
+    markers.forEach(m => m.map = null);
+    setMarkers([]);
 
     const { AdvancedMarkerElement } = (await google.maps.importLibrary(
       'marker',
@@ -63,84 +84,147 @@ function DrawingTools({ darkMode, onToggleDarkMode }: { darkMode: boolean; onTog
 
     const newMarkers: google.maps.marker.AdvancedMarkerElement[] = [];
 
-    // take only the first shape for now
-    for (const shape of shapes) {
-      let endpoint = "";
-      let payload: any = {};
+    try {
+      // Process all shapes
+      for (const shape of shapes) {
+        let endpoint = "";
+        let payload: any = {};
 
-      if (shape instanceof google.maps.Rectangle) {
-        const bounds = shape.getBounds();
-        if (bounds) {
-          const ne = bounds.getNorthEast();
-          const sw = bounds.getSouthWest();
-          payload = { ne: [ne.lat(), ne.lng()], sw: [sw.lat(), sw.lng()] };
-          endpoint = "rectangle";
+        if (shape instanceof google.maps.Rectangle) {
+          const bounds = shape.getBounds();
+          if (bounds) {
+            const ne = bounds.getNorthEast();
+            const sw = bounds.getSouthWest();
+            payload = { ne: [ne.lat(), ne.lng()], sw: [sw.lat(), sw.lng()] };
+            endpoint = "rectangle";
+          }
+        } else if (shape instanceof google.maps.Circle) {
+          const center = shape.getCenter();
+          const radius = shape.getRadius();
+          if (center) {
+            payload = { center: [center.lat(), center.lng()], radius };
+            endpoint = "circle";
+          }
+        } else if (shape instanceof google.maps.Polygon) {
+          const path = shape.getPath();
+          const points: [number, number][] = [];
+          for (let i = 0; i < path.getLength(); i++) {
+            const p = path.getAt(i);
+            points.push([p.lat(), p.lng()]);
+          }
+          payload = { points };
+          endpoint = "polygon";
         }
-      } else if (shape instanceof google.maps.Circle) {
-        const center = shape.getCenter();
-        const radius = shape.getRadius();
-        if (center) {
-          payload = { center: [center.lat(), center.lng()], radius };
-          endpoint = "circle";
+
+        if (!endpoint) continue;
+
+        // Use API_URL from config or fallback to Next.js API routes
+        const url = apiUrl 
+          ? `${apiUrl}/random-points/${endpoint}`
+          : `/api/random-points/${endpoint}?count=100`;
+        
+        console.log('🌱 Fetching markers from:', url);
+        console.log('📦 Payload:', payload);
+
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('❌ API Error:', res.status, errorText);
+          throw new Error(`API returned ${res.status}: ${errorText}`);
         }
-      } else if (shape instanceof google.maps.Polygon) {
-        const path = shape.getPath();
-        const points: [number, number][] = [];
-        for (let i = 0; i < path.getLength(); i++) {
-          const p = path.getAt(i);
-          points.push([p.lat(), p.lng()]);
+
+        const data = await res.json();
+        console.log('✅ Received points:', data.points?.length || 0);
+
+        // Create markers with plant animation
+        for (const point of data.points) {
+          const [lat, lng] = point;
+          
+          // Create plant marker container
+          const container = document.createElement("div");
+          container.style.position = "relative";
+          container.style.cursor = "pointer";
+          container.style.transition = "transform 0.2s ease";
+          
+          const img = document.createElement("img");
+          img.src = "/plant-animation/1.png";
+          img.width = 48;
+          img.height = 48;
+          img.style.display = "block";
+          img.style.filter = "drop-shadow(0 2px 4px rgba(0,0,0,0.3))";
+          
+          container.appendChild(img);
+
+          const marker = new AdvancedMarkerElement({
+            position: { lat, lng },
+            content: container,
+            title: `Plant at ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+          });
+
+          // Hover effect
+          container.addEventListener('mouseenter', () => {
+            container.style.transform = "scale(1.15)";
+          });
+          container.addEventListener('mouseleave', () => {
+            if (marker !== selectedMarker) {
+              container.style.transform = "scale(1)";
+            }
+          });
+
+          // Click handler
+          marker.addListener("click", () => {
+            // Deselect previous marker
+            if (selectedMarker && selectedMarker !== marker) {
+              const prevContent = selectedMarker.content as HTMLElement;
+              prevContent.style.border = "";
+              prevContent.style.transform = "scale(1)";
+            }
+            
+            // Select new marker
+            container.style.border = "3px solid #60a5fa";
+            container.style.borderRadius = "50%";
+            container.style.transform = "scale(1.2)";
+            setSelectedMarker(marker);
+            setMarkerInfo(`🌱 Plant Location\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}`);
+          });
+
+          newMarkers.push(marker);
         }
-        payload = { points };
-        endpoint = "polygon";
       }
 
-      if (!endpoint) return;
+      if (newMarkers.length === 0) {
+        alert('No markers were generated. Please try again.');
+        return;
+      }
 
-      // Call backend (falls back to relative API route if NEXT_PUBLIC_API_URL is not set)
-      const apiBase = (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/+$/, '');
-      const origin = apiBase || (typeof window !== 'undefined' ? window.location.origin : '');
-      const url = `${origin}/api/random-points/${endpoint}?count=100`;
-      console.log('generateRandomMarkers -> POST', url, payload);
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+      console.log('🎯 Total markers created:', newMarkers.length);
+      setMarkers(newMarkers);
+      
+      // Add clustering for performance
+      const clusterer = new MarkerClusterer({ 
+        markers: newMarkers, 
+        map,
+        algorithmOptions: {
+          maxZoom: 15,
+        }
+      });
+      setMarkerClusterer(clusterer);
+
+      // Make shapes transparent but keep borders visible
+      shapes.forEach(shape => {
+        (shape as any).setOptions({ fillOpacity: 0.0, strokeOpacity: 1.0 });
       });
 
-      const data = await res.json();
-
-      // Place returned points as markers
-      for (const [lat, lng] of data.points) {
-        const img = document.createElement("img");
-        img.src = "/plant-animation/1.png";
-        img.width = 48;
-        img.height = 48;
-
-        const marker = new AdvancedMarkerElement({
-          position: { lat, lng },
-          content: img,
-        });
-
-        marker.addListener("click", () => {
-          if (selectedMarker) {
-            (selectedMarker.content as HTMLElement).style.border = "";
-          }
-          (marker.content as HTMLElement).style.border = "2px solid #93c5fd";
-          setSelectedMarker(marker);
-          setMarkerInfo(`Marker Position: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
-        });
-
-        newMarkers.push(marker);
-      }
+      console.log('✨ Marker generation complete!');
+    } catch (error) {
+      console.error('❌ Error generating markers:', error);
+      alert(`Failed to generate markers: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-    setMarkers(newMarkers);
-    const clusterer = new MarkerClusterer({ markers: newMarkers, map });
-    setMarkerClusterer(clusterer);
-
-    // Keep shape borders but make them transparent
-    shapes.forEach(shape => {
-      (shape as any).setOptions({ fillOpacity: 0.0, strokeOpacity: 1.0 });
-    });
   };
 
   const updateCoordinates = (shape: google.maps.MVCObject) => {
@@ -466,19 +550,86 @@ function DrawingTools({ darkMode, onToggleDarkMode }: { darkMode: boolean; onTog
 
 export default function Map2Page() {
   const position = { lat: 22.5726, lng: 88.3639 };
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const [config, setConfig] = useState<AppConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [darkMode, setDarkMode] = useState(true);
 
-  if (!apiKey) {
-    return <div>Error: API Key is missing. Set GOOGLE_MAPS_API_KEY in your .env.local file.</div>;
-  }
+  // Fetch configuration from API route on mount
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const response = await fetch('/api/config');
+        if (!response.ok) {
+          throw new Error('Failed to fetch configuration');
+        }
+        const data = await response.json();
+        setConfig(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchConfig();
+  }, []);
 
   const toggleDarkMode = () => {
     setDarkMode(prev => !prev);
   };
 
+  // Loading state
+  if (loading) {
+    return <RouteLoading />;
+  }
+
+  // Error state
+  if (error || !config) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        height: '100vh',
+        background: '#0f172a',
+        color: '#ef4444',
+        fontSize: '18px',
+        padding: '20px',
+        textAlign: 'center',
+        flexDirection: 'column',
+        gap: '10px'
+      }}>
+        <div>❌ Error loading configuration</div>
+        <div style={{ fontSize: '14px', color: '#9ca3af' }}>
+          {error || 'Configuration not available'}
+        </div>
+      </div>
+    );
+  }
+
+  // Missing API key
+  if (!config.googleMapsApiKey) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        height: '100vh',
+        background: '#0f172a',
+        color: '#ef4444',
+        fontSize: '18px',
+        padding: '20px',
+        textAlign: 'center'
+      }}>
+        ❌ Error: Google Maps API Key is missing.<br/>
+        Please set GOOGLE_MAPS_API_KEY in your .env file.
+      </div>
+    );
+  }
+
   return (
-    <APIProvider apiKey={apiKey} libraries={['drawing', 'geometry', 'marker']}>
+    <APIProvider apiKey={config.googleMapsApiKey} libraries={['drawing', 'geometry', 'marker']}>
       <div style={{ height: "100dvh", width: "100%", position: "relative" }}>
         <NavBar />
         <GoogleMap
@@ -487,6 +638,7 @@ export default function Map2Page() {
           defaultTilt={0}
           defaultHeading={0}
           gestureHandling="greedy"
+          mapId={config.mapId || undefined}
           colorScheme={darkMode ? "DARK" : "LIGHT"}
           restriction={{
             latLngBounds: {
@@ -495,7 +647,11 @@ export default function Map2Page() {
             strictBounds: true
           }}
         >
-          <DrawingTools darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
+          <DrawingTools 
+            darkMode={darkMode} 
+            onToggleDarkMode={toggleDarkMode}
+            apiUrl={config.apiUrl}
+          />
         </GoogleMap>
       </div>
     </APIProvider>
