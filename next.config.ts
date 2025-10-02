@@ -1,11 +1,10 @@
 import type { NextConfig } from "next";
 
-const nextConfig = {
-  /* config options here */
-  turbopack: {
-    // Explicitly set the project root to silence Turbopack root inference warnings
-    root: __dirname,
-  },
-} as unknown as NextConfig;
+const nextConfig: NextConfig = {
+  // Prevent dev-time double-mounting and effect re-invocation that can
+  // look like "auto-reload" for WebGL/RAF loops
+  reactStrictMode: false,
+  swcMinify: true,
+};
 
 export default nextConfig;

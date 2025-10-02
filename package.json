@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "set NEXT_DISABLE_REACT_REFRESH=1 && next dev",
+    "build": "next build",
     "start": "next start"
   },
   "dependencies": {
