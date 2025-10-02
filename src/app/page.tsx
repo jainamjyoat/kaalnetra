@@ -7,10 +7,7 @@ import dynamic from "next/dynamic";
 import Shuffle from "@/components/Shuffle";
 import { Map, Flower2, Pencil, Globe, Moon, Search, LucideIcon } from "lucide-react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Lenis from "lenis";
 import { cn } from "@/components/lib/utils";
-import ScrollVelocity from "@/components/ScrollVelocity";
-import { SeasonalHoverCards } from "@/components/lightswind/seasonal-hover-cards";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -269,30 +266,6 @@ export default function Home() {
     return () => clearInterval(id);
   }, []);
 
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-            touchMultiplier: 1.2,
-    });
-
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    requestAnimationFrame(raf);
-
-    // Sync with ScrollTrigger
-    lenis.on('scroll', () => {
-      try { ScrollTrigger.update(); } catch {}
-    });
-
-    return () => {
-      lenis.destroy();
-    };
-  }, []);
-
   useGSAP(() => {
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
     tl.from(".hero-overlay", { opacity: 0, duration: 0.6 })
@@ -392,7 +365,7 @@ export default function Home() {
 
       <section className="w-full bg-neutral-950 text-white py-16 sm:py-20 md:py-24">
         <div className="w-full max-w-6xl mx-auto px-6">
-                    <ScrollCarousel
+          <ScrollCarousel
             className="w-full"
             features={[
               { icon: Map, title: "Global Map Exploration", description: "Pan, zoom, and discover flowers anywhere on Earth with animated bloom cycles.", image: "Pictures/wallpaperflare.com_wallpaper.jpg" },
@@ -403,49 +376,6 @@ export default function Home() {
               { icon: Search, title: "Discover & Compare", description: "Find rare, seasonal, and diverse species and compare across regions.", image: "Pictures/wallpaperflare.com_wallpaper (2).jpg" }
             ]}
             maxScrollHeight={2000}
-          />
-                  </div>
-        <div className="w-full mt-20 md:mt-28">
-          <ScrollVelocity
-            texts={[
-              "Kaalnetra • Flora Atlas • Phenology • Earth Data • Satellites • Climate • Seasons",
-              "Kaalnetra • Flora Atlas • Phenology • Earth Data • Satellites • Climate • Seasons",
-            ]}
-            velocity={100}
-            className="text-3xl md:text-5xl"
-            numCopies={8}
-            parallaxClassName="py-2"
-          />
-        </div>
-        <div className="w-full">
-          <SeasonalHoverCards
-            className="mt-25 md:mt-34"
-            cards={[
-              {
-                title: "Global Insights",
-                subtitle: "Bloom patterns and climate correlations",
-                description:
-                  "Explore flowering cycles across regions and understand climate-driven variations.",
-                imageSrc: "/Pictures/Summer1.jpg",
-                imageAlt: "Global insights image",
-              },
-              {
-                title: "Real-time Phenology",
-                subtitle: "What's blooming now",
-                description:
-                  "Track live flowering windows and phenology shifts with seasonal context.",
-                imageSrc: "/Pictures/wallpaperflare.com_wallpaper (1).jpg",
-                imageAlt: "Real-time phenology image",
-              },
-              {
-                title: "Explore Regions",
-                subtitle: "Compare seasonal changes",
-                description:
-                  "Zoom into any region and compare species seasons across geography.",
-                imageSrc: "/Pictures/wallpaperflare.com_wallpaper (2).jpg",
-                imageAlt: "Explore regions image",
-              },
-            ]}
           />
         </div>
       </section>
