@@ -361,7 +361,7 @@ function DrawingTools() {
   const [markerInfo, setMarkerInfo] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [koppenOverlay, setKoppenOverlay] = useState<google.maps.GroundOverlay | null>(null);
+  const [koppenOverlays, setKoppenOverlays] = useState<google.maps.GroundOverlay[]>([]);
   const [koppenVisible, setKoppenVisible] = useState(false);
   const [loadingKoppen, setLoadingKoppen] = useState(false);
 
@@ -586,7 +586,7 @@ function DrawingTools() {
 
   // Preload Koppen overlay in the background once the map is ready, no spinner, don't attach to map
   useEffect(() => {
-    if (!map || koppenOverlay) return;
+    if (!map || koppenOverlays.length > 0) return;
     const preload = () => {
       loadKoppenOverlay({ attach: false, showSpinner: false }).catch(() => {});
     };
@@ -602,7 +602,7 @@ function DrawingTools() {
       if (idleId && (window as any).cancelIdleCallback) (window as any).cancelIdleCallback(idleId);
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [map, koppenOverlay]);
+  }, [map, koppenOverlays.length]);
 
   useEffect(() => {
     if (markers.length === 0) return;
@@ -672,7 +672,7 @@ function DrawingTools() {
   const loadKoppenOverlay = async (
     { attach = true, showSpinner = true }: { attach?: boolean; showSpinner?: boolean } = {}
   ) => {
-    if (!map || loadingKoppen || koppenOverlay) return;
+    if (!map || loadingKoppen || koppenOverlays.length > 0) return;
     if (showSpinner) setLoadingKoppen(true);
     try {
       const tiff = await fromUrl('/koppen.tif');
@@ -849,15 +849,51 @@ function DrawingTools() {
         throw new Error('Geo-referencing not found in TIFF');
       }
 
-      const bounds = new google.maps.LatLngBounds(
-        new google.maps.LatLng(minY, minX),
-        new google.maps.LatLng(maxY, maxX)
-      );
+      // Handle antimeridian (dateline) crossing by splitting into two overlays if needed
+      const clampLon = (lon: number) => Math.max(-179.999, Math.min(179.999, lon));
+      const spans0360 = minX >= 0 && maxX > 180;
+      const crosses180 = minX < 180 && maxX > 180;
 
-      const url = canvas.toDataURL('image/png');
-      const overlay = new google.maps.GroundOverlay(url, bounds, { opacity: 0.85, clickable: false });
-      if (attach) overlay.setMap(map);
-      setKoppenOverlay(overlay);
+      let overlaysToSet: google.maps.GroundOverlay[] = [];
+      if (spans0360 || crosses180) {
+        const frac = (180 - minX) / (maxX - minX);
+        const cutCol = Math.max(0, Math.min(targetW, Math.round(frac * targetW)));
+
+        const leftCanvas = document.createElement('canvas');
+        leftCanvas.width = cutCol; leftCanvas.height = targetH;
+        const lctx = leftCanvas.getContext('2d');
+        if (!lctx) throw new Error('Canvas 2D context unavailable');
+        lctx.drawImage(canvas, 0, 0, cutCol, targetH, 0, 0, cutCol, targetH);
+
+        const rightCanvas = document.createElement('canvas');
+        rightCanvas.width = Math.max(0, targetW - cutCol); rightCanvas.height = targetH;
+        const rctx = rightCanvas.getContext('2d');
+        if (!rctx) throw new Error('Canvas 2D context unavailable');
+        rctx.drawImage(canvas, cutCol, 0, targetW - cutCol, targetH, 0, 0, targetW - cutCol, targetH);
+
+        const leftBounds = new google.maps.LatLngBounds(
+          new google.maps.LatLng(minY, clampLon(minX)),
+          new google.maps.LatLng(maxY, 179.999)
+        );
+        const rightBounds = new google.maps.LatLngBounds(
+          new google.maps.LatLng(minY, -179.999),
+          new google.maps.LatLng(maxY, clampLon(maxX - 360))
+        );
+
+        const leftOverlay = new google.maps.GroundOverlay(leftCanvas.toDataURL('image/png'), leftBounds, { opacity: 0.85, clickable: false });
+        const rightOverlay = new google.maps.GroundOverlay(rightCanvas.toDataURL('image/png'), rightBounds, { opacity: 0.85, clickable: false });
+        overlaysToSet = [leftOverlay, rightOverlay];
+      } else {
+        const bounds2 = new google.maps.LatLngBounds(
+          new google.maps.LatLng(minY, clampLon(Math.min(minX, maxX))),
+          new google.maps.LatLng(maxY, clampLon(Math.max(minX, maxX)))
+        );
+        const overlay = new google.maps.GroundOverlay(canvas.toDataURL('image/png'), bounds2, { opacity: 0.85, clickable: false });
+        overlaysToSet = [overlay];
+      }
+
+      overlaysToSet.forEach(ov => { if (attach) ov.setMap(map); });
+      setKoppenOverlays(overlaysToSet);
       setKoppenVisible(attach);
     } catch (e) {
       console.error('Failed to load koppen.tif:', e);
@@ -867,14 +903,14 @@ function DrawingTools() {
   };
 
   const toggleKoppenOverlay = async () => {
-    if (!koppenOverlay) {
+    if (koppenOverlays.length === 0) {
       await loadKoppenOverlay({ attach: true, showSpinner: true });
     } else {
       if (koppenVisible) {
-        koppenOverlay.setMap(null);
+        koppenOverlays.forEach(ov => ov.setMap(null));
         setKoppenVisible(false);
       } else {
-        koppenOverlay.setMap(map);
+        koppenOverlays.forEach(ov => ov.setMap(map));
         setKoppenVisible(true);
       }
     }
