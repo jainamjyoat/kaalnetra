@@ -11,6 +11,7 @@ import Lenis from "lenis";
 import { cn } from "@/components/lib/utils";
 import ScrollVelocity from "@/components/ScrollVelocity";
 import { SeasonalHoverCards } from "@/components/lightswind/seasonal-hover-cards";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -43,7 +44,7 @@ const useFeatureAnimations = (
     const ctx = gsap.context(() => {
       if (isDesktop) {
         const scrollWidth1 = scrollContainerRef.current?.scrollWidth || 0;
-                const containerWidth = containerRef.current?.offsetWidth || 0;
+        const containerWidth = containerRef.current?.offsetWidth || 0;
         const cardWidth = cardRefs.current[0]?.offsetWidth || 0;
         const viewportOffset = (containerWidth - cardWidth) / 2;
 
@@ -115,9 +116,9 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
   ({ features, className, maxScrollHeight }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-        const progressBarRef = useRef<HTMLDivElement>(null);
+    const progressBarRef = useRef<HTMLDivElement>(null);
     const cardRefs = useRef<HTMLDivElement[]>([]);
-        const [isDesktop, setIsDesktop] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(false);
 
     
     
@@ -195,11 +196,11 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
       >
         <div
           ref={containerRef}
-          className="relative overflow-hidden md:h-screen md:py-20 flex flex-col gap-0 z-10 lg:[mask-image:_linear-gradient(to_right,transparent_0,_black_5%,_black_95%,transparent_100%)]"
+          className="relative overflow-hidden flex flex-col gap-0 z-10 lg:[mask-image:_linear-gradient(to_right,transparent_0,_black_5%,_black_95%,transparent_100%)]"
         >
           <div
             ref={scrollContainerRef}
-            className="flex flex-col md:flex-row gap-8 items-center h-full px-6 md:px-0"
+            className="flex flex-col md:flex-row gap-8 items-start h-full px-6 md:px-0"
           >
             {renderFeatureCards(features, cardRefs)}
           </div>
@@ -248,6 +249,94 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
 
 (ScrollCarousel as any).displayName = "ScrollCarousel";
 
+// --- BoldTitle Block (inserted between hero and carousel) ---
+function BoldTitleBlock() {
+  const boldTitle = useRef<HTMLDivElement | null>(null);
+  const boldTitleLeft = useRef<HTMLSpanElement | null>(null);
+  const boldTitleRight = useRef<HTMLSpanElement | null>(null);
+
+  useGSAP(
+    () => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: boldTitle.current,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true,
+          toggleActions: "play none none reverse",
+        },
+      });
+
+      tl.fromTo(
+        boldTitleLeft.current,
+        { xPercent: -50 },
+        { xPercent: -10 },
+        0
+      );
+      tl.fromTo(
+        boldTitleRight.current,
+        { xPercent: 50 },
+        { xPercent: 10 },
+        0
+      );
+    },
+    { scope: boldTitle }
+  );
+
+  return (
+    <section className="relative bg-neutral-950 text-white pt-6 pb-12 sm:pt-8 sm:pb-14 md:pt-6 md:pb-16 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-6">
+        <div ref={boldTitle} className="grid grid-cols-12 md:grid-rows-3 gap-y-8 md:gap-y-10 md:gap-x-12 gap-x-6 items-center">
+          {/* Left half of the sentence (explicitly columns 1-4) */}
+          <div className="hidden md:block md:col-start-1 md:col-span-4 md:row-span-3 justify-self-end self-center pr-8">
+            <ScrollReveal
+              size="sm"
+              align="right"
+              variant="default"
+              containerClassName="max-w-[26ch]"
+              textClassName="text-white/90 font-bold text-right leading-snug"
+              baseOpacity={0.15}
+              blurStrength={6}
+              staggerDelay={0.05}
+              threshold={0.3}
+            >
+              A living atlas that reveals when and where flowers bloom
+            </ScrollReveal>
+          </div>
+
+          {/* Center animated title (explicitly columns 5-8) */}
+          <span ref={boldTitleLeft} className="col-span-12 md:col-start-5 md:col-span-4 md:row-start-1 text-center font-extrabold leading-tight text-5xl sm:text-6xl md:text-7xl lg:text-8xl will-change-transform">
+            Kaalnetra
+          </span>
+          <span className="col-span-12 md:col-start-5 md:col-span-4 md:row-start-2 text-center italic font-extrabold leading-tight text-5xl sm:text-6xl md:text-7xl lg:text-8xl">
+            Flora
+          </span>
+          <span ref={boldTitleRight} className="col-span-12 md:col-start-5 md:col-span-4 md:row-start-3 text-center font-extrabold leading-tight text-5xl sm:text-6xl md:text-7xl lg:text-8xl will-change-transform">
+            Atlas
+          </span>
+
+          {/* Right half of the sentence (explicitly columns 9-12) */}
+          <div className="hidden md:block md:col-start-9 md:col-span-4 md:row-span-3 justify-self-start self-center pl-8">
+            <ScrollReveal
+              size="sm"
+              align="left"
+              variant="default"
+              containerClassName="max-w-[26ch]"
+              textClassName="text-white/85 font-semibold text-left leading-snug"
+              baseOpacity={0.15}
+              blurStrength={6}
+              staggerDelay={0.05}
+              threshold={0.3}
+            >
+              blending satellite context, climate patterns, and rich regional stories you can explore.
+            </ScrollReveal>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -274,7 +363,7 @@ export default function Home() {
       duration: 1.2,
       easing: (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-            touchMultiplier: 1.2,
+      touchMultiplier: 1.2,
     });
 
     function raf(time: number) {
@@ -390,9 +479,13 @@ export default function Home() {
         </main>
       </div>
 
-      <section className="w-full bg-neutral-950 text-white py-16 sm:py-20 md:py-24">
+      {/* Inserted BoldTitle animation block here */}
+      <BoldTitleBlock />
+
+      
+      <section className="w-full bg-neutral-950 text-white pt-6 pb-16 sm:pt-8 sm:pb-20 md:pt-10 md:pb-24">
         <div className="w-full max-w-6xl mx-auto px-6">
-                    <ScrollCarousel
+          <ScrollCarousel
             className="w-full"
             features={[
               { icon: Map, title: "Global Map Exploration", description: "Pan, zoom, and discover flowers anywhere on Earth with animated bloom cycles.", image: "Pictures/wallpaperflare.com_wallpaper.jpg" },
@@ -404,7 +497,7 @@ export default function Home() {
             ]}
             maxScrollHeight={2000}
           />
-                  </div>
+        </div>
         <div className="w-full mt-20 md:mt-28">
           <ScrollVelocity
             texts={[
