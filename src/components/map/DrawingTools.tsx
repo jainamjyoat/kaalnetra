@@ -3,38 +3,24 @@
 import React, { useEffect, useState } from 'react';
 import { Marker, InfoWindow, useMap } from '@vis.gl/react-google-maps';
 
+// --- Type Definitions ---
 interface DrawingToolsProps {
   darkMode: boolean;
   onToggleDarkMode: () => void;
   apiUrl: string;
 }
-
-interface Species {
-  scientific_name: string;
-  common_name: string;
-  phenophase: string;
-}
-
-interface Pest {
-  scientific_name_pest: string;
-  common_name_pest: string;
-}
-
+interface Species { scientific_name: string; common_name: string; phenophase: string; }
+interface Pest { scientific_name_pest: string; common_name_pest: string; }
 interface BiomeResult {
   biome: string;
   biome_name: string;
-  climate_data: {
-    temperature: number;
-    precipitation: number;
-    radiation: number;
-  };
+  location: { lat: number; lng: number; }; // <-- Location is now inside the result
+  climate_data: { temperature: number; precipitation: number; radiation: number; };
   species: Species[];
   pests: Pest[];
 }
-
 interface AnalysisResult {
-  centroid: { lat: number; lng: number; };
-  results: BiomeResult[];
+  results: BiomeResult[]; // <-- Top level is now just the results array
 }
 
 function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps) {
@@ -42,13 +28,12 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
   const [drawingManager, setDrawingManager] = useState<google.maps.drawing.DrawingManager | null>(null);
   const [shapes, setShapes] = useState<google.maps.MVCObject[]>([]);
   const [selectedTool, setSelectedTool] = useState<string>('select');
-  const [selectedShape, setSelectedShape] = useState<google.maps.MVCObject | null>(null);
   
   const [analysisMonth, setAnalysisMonth] = useState<number>(10);
   const [analysisYear, setAnalysisYear] = useState<number>(2025);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [isLoadingAnalysis, setIsLoadingAnalysis] = useState<boolean>(false);
-  const [activeInfoWindow, setActiveInfoWindow] = useState<'species' | 'pests' | null>(null);
+  const [activeInfoWindow, setActiveInfoWindow] = useState<string | null>(null); // <-- Will now store the biome code
 
   useEffect(() => {
     if (!map) return;
@@ -66,7 +51,6 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
       shapes.forEach(s => (s as any).setMap(null));
       const newShape = event.overlay;
       setShapes([newShape]);
-      setSelectedShape(newShape);
       manager.setDrawingMode(null);
       setSelectedTool('select');
     };
@@ -89,7 +73,6 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
   const deleteSelectedShape = () => {
     shapes.forEach(s => (s as any).setMap(null));
     setShapes([]);
-    setSelectedShape(null);
     setAnalysisResult(null);
   };
 
@@ -116,18 +99,14 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
       if (bounds) {
         const ne = bounds.getNorthEast();
         const sw = bounds.getSouthWest();
-        shape_points.push([ne.lat(), ne.lng()]);
-        shape_points.push([ne.lat(), sw.lng()]);
-        shape_points.push([sw.lat(), sw.lng()]);
-        shape_points.push([sw.lat(), ne.lng()]);
+        shape_points.push([ne.lat(), ne.lng()],[ne.lat(), sw.lng()],[sw.lat(), sw.lng()],[sw.lat(), ne.lng()]);
       }
     } else if (shape instanceof google.maps.Circle) {
       const center = shape.getCenter();
       const radius = shape.getRadius();
       if (center && radius) {
         for (let i = 0; i < 32; i++) {
-          const angle = (i / 32) * 360;
-          const point = google.maps.geometry.spherical.computeOffset(center, radius, angle);
+          const point = google.maps.geometry.spherical.computeOffset(center, radius, (i / 32) * 360);
           if (point) shape_points.push([point.lat(), point.lng()]);
         }
       }
@@ -139,14 +118,11 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
       return;
     }
 
-    const payload = { shape_points, month: analysisMonth, year: analysisYear };
-
     try {
-      const res = await fetch(`${apiUrl}/analyze-by-biome`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const res = await fetch(`${apiUrl}/analyze-by-biome`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ shape_points, month: analysisMonth, year: analysisYear }) });
       if (!res.ok) throw new Error(await res.text());
       const data: AnalysisResult = await res.json();
       setAnalysisResult(data);
-      if (data.centroid) map?.panTo(data.centroid);
     } catch (error) {
       alert(`Failed to run analysis: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
@@ -154,16 +130,12 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
     }
   };
 
-  const speciesPinPosition = analysisResult?.centroid ? { lat: analysisResult.centroid.lat, lng: analysisResult.centroid.lng - 0.01 } : null;
-  const pestPinPosition = analysisResult?.centroid ? { lat: analysisResult.centroid.lat, lng: analysisResult.centroid.lng + 0.01 } : null;
-
   const btnStyle = (tool: string) => ({ padding: '8px 12px', border: '1px solid #374151', borderRadius: '4px', background: selectedTool === tool ? '#2563eb' : '#1f2937', color: 'white', cursor: 'pointer' });
 
   return (
     <>
       <div style={{ position: 'absolute', top: '80px', left: '24px', zIndex: 1000, background: '#0f172a', color: '#e5e7eb', padding: '14px', borderRadius: '10px', boxShadow: '0 2px 18px rgba(0,0,0,0.42)', display: 'flex', flexDirection: 'column', gap: '12px', minWidth: '320px' }}>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <button onClick={() => handleToolSelect('select')} style={btnStyle('select')}>Select</button>
           <button onClick={() => handleToolSelect('rectangle')} style={btnStyle('rectangle')}>Rectangle</button>
           <button onClick={() => handleToolSelect('circle')} style={btnStyle('circle')}>Circle</button>
           <button onClick={() => handleToolSelect('polygon')} style={btnStyle('polygon')}>Polygon</button>
@@ -185,36 +157,40 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
         </div>
       </div>
 
-      {analysisResult && speciesPinPosition && pestPinPosition && (
-        <>
-          <Marker position={speciesPinPosition} title="Results" onClick={() => setActiveInfoWindow('species')}>
-            <span style={{ fontSize: '24px', transform: 'translate(-50%, -50%)' }}>🌿</span>
+      {/* NEW: Loop to render a marker for each biome */}
+      {analysisResult?.results.map((result) => (
+        <React.Fragment key={result.biome}>
+          <Marker
+            position={result.location}
+            title={result.biome_name}
+            onClick={() => setActiveInfoWindow(result.biome)}
+          >
+             <span style={{ fontSize: '24px', transform: 'translate(-50%, -50%)' }}>📍</span>
           </Marker>
-          {activeInfoWindow === 'species' && (
-            <InfoWindow position={speciesPinPosition} onCloseClick={() => setActiveInfoWindow(null)}>
+          
+          {activeInfoWindow === result.biome && (
+            <InfoWindow
+              position={result.location}
+              onCloseClick={() => setActiveInfoWindow(null)}
+            >
               <div style={{ maxHeight: '250px', overflowY: 'auto', padding: '5px', color: '#111', minWidth: '280px' }}>
-                <h4>Analysis Results</h4>
-                {analysisResult.results.map((res) => (
-                  <div key={res.biome} style={{marginBottom: '12px'}}>
-                    <strong>{res.biome_name} ({res.biome})</strong>
-                    <div style={{fontSize: '12px', background: '#f0f0f0', padding: '4px 8px', borderRadius: '4px', margin: '4px 0'}}>
-                      Temp: {res.climate_data.temperature}°C | Precip: {res.climate_data.precipitation}mm | Rad: {res.climate_data.radiation}
-                    </div>
-                    <strong style={{fontSize: '13px'}}>Species:</strong>
-                    <ul style={{ paddingLeft: '20px', margin: '5px 0' }}>
-                      {res.species.map((s) => <li key={s.scientific_name}>{s.common_name} ({s.phenophase})</li>)}
-                    </ul>
-                    <strong style={{fontSize: '13px'}}>Pests:</strong>
-                     <ul style={{ paddingLeft: '20px', margin: '5px 0' }}>
-                      {res.pests.map((p) => <li key={p.scientific_name_pest}>{p.common_name_pest}</li>)}
-                    </ul>
-                  </div>
-                ))}
+                <h4>{result.biome_name} ({result.biome})</h4>
+                <div style={{fontSize: '12px', background: '#f0f0f0', padding: '4px 8px', borderRadius: '4px', margin: '4px 0'}}>
+                  Temp: {result.climate_data.temperature}°C | Precip: {result.climate_data.precipitation}mm | Rad: {result.climate_data.radiation}
+                </div>
+                <strong style={{fontSize: '13px'}}>Species:</strong>
+                <ul style={{ paddingLeft: '20px', margin: '5px 0' }}>
+                  {result.species.map((s) => <li key={s.scientific_name}>{s.common_name} ({s.phenophase})</li>)}
+                </ul>
+                <strong style={{fontSize: '13px'}}>Pests:</strong>
+                 <ul style={{ paddingLeft: '20px', margin: '5px 0' }}>
+                  {result.pests.map((p) => <li key={p.scientific_name_pest}>{p.common_name_pest}</li>)}
+                </ul>
               </div>
             </InfoWindow>
           )}
-        </>
-      )}
+        </React.Fragment>
+      ))}
     </>
   );
 }
