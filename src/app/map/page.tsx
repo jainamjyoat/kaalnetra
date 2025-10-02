@@ -244,6 +244,8 @@ import { APIProvider, Map as GoogleMap, useMap } from '@vis.gl/react-google-maps
 import { MarkerClusterer } from '@googlemaps/markerclusterer';
 
 import { Marker } from '@vis.gl/react-google-maps';
+import { fromUrl, Pool } from 'geotiff';
+import RouteLoading from './loading';
 
 // FlowerMarkers component: renders markers using @vis.gl/react-google-maps
 function FlowerMarkers({ onMarkerClick }: { onMarkerClick: (flower: FlowerLocation) => void }) {
@@ -359,6 +361,9 @@ function DrawingTools() {
   const [markerInfo, setMarkerInfo] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [koppenOverlays, setKoppenOverlays] = useState<google.maps.GroundOverlay[]>([]);
+  const [koppenVisible, setKoppenVisible] = useState(false);
+  const [loadingKoppen, setLoadingKoppen] = useState(false);
 
   useEffect(() => {
     const check = () => setIsMobile(window.matchMedia('(max-width: 640px)').matches);
@@ -579,6 +584,26 @@ function DrawingTools() {
     };
   }, [map]);
 
+  // Preload Koppen overlay in the background once the map is ready, no spinner, don't attach to map
+  useEffect(() => {
+    if (!map || koppenOverlays.length > 0) return;
+    const preload = () => {
+      loadKoppenOverlay({ attach: false, showSpinner: false }).catch(() => {});
+    };
+    const ric = (window as any).requestIdleCallback;
+    let idleId: any;
+    let timeoutId: any;
+    if (typeof ric === 'function') {
+      idleId = ric(preload, { timeout: 2000 });
+    } else {
+      timeoutId = setTimeout(preload, 1500);
+    }
+    return () => {
+      if (idleId && (window as any).cancelIdleCallback) (window as any).cancelIdleCallback(idleId);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [map, koppenOverlays.length]);
+
   useEffect(() => {
     if (markers.length === 0) return;
 
@@ -644,8 +669,257 @@ function DrawingTools() {
     }
   };
 
+  const loadKoppenOverlay = async (
+    { attach = true, showSpinner = true }: { attach?: boolean; showSpinner?: boolean } = {}
+  ) => {
+    if (!map || loadingKoppen || koppenOverlays.length > 0) return;
+    if (showSpinner) setLoadingKoppen(true);
+    try {
+      const tiff = await fromUrl('/koppen.tif');
+      const image: any = await tiff.getImage();
+      const width: number = image.getWidth();
+      const height: number = image.getHeight();
+      // Use a worker pool to avoid blocking the main thread during decoding
+      const pool = new Pool(Math.max(1, Math.min(4, (navigator as any).hardwareConcurrency || 2)));
+
+      // Downsample large rasters to avoid memory overflow
+      const MAX_DIM = 2048; // cap the longest side
+      const longer = Math.max(width, height);
+      const scaleFactor = longer > MAX_DIM ? MAX_DIM / longer : 1;
+      const targetW = Math.max(1, Math.round(width * scaleFactor));
+      const targetH = Math.max(1, Math.round(height * scaleFactor));
+
+      // Ask geotiff.js to convert to RGB (handles palettes) and resample
+      const rasters: any = await image.readRasters({
+        interleave: true,
+        width: targetW,
+        height: targetH,
+        resampleMethod: 'nearest',
+        convertToRGB: true,
+        pool,
+      });
+
+      const canvas = document.createElement('canvas');
+      canvas.width = targetW;
+      canvas.height = targetH;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas 2D context unavailable');
+
+      const total = targetW * targetH;
+      const channels = Math.max(1, Math.round(rasters.length / total));
+      const ctorName = (rasters as any).constructor?.name || '';
+
+      // Detect NoData from GDAL metadata if present (used to mark water)
+      const fdTags = image.fileDirectory || {};
+      let noDataValue: number | null = null;
+      try {
+        const anyImg: any = image as any;
+        if (typeof anyImg.getGDALNoData === 'function') {
+          const nd = anyImg.getGDALNoData();
+          if (nd !== undefined && nd !== null) noDataValue = Number(nd);
+        } else if (fdTags.GDAL_NODATA !== undefined) {
+          noDataValue = Number(fdTags.GDAL_NODATA);
+        }
+      } catch {}
+
+      // Determine scaling behavior based on data type
+      let maxGuess: number | null = null;
+      let assume0to1 = false;
+      if (ctorName === 'Uint8Array' || ctorName === 'Uint8ClampedArray') {
+        maxGuess = 255;
+      } else if (ctorName === 'Uint16Array') {
+        maxGuess = 65535;
+      } else if (ctorName === 'Int16Array') {
+        maxGuess = 32767;
+      } else if (ctorName === 'Uint32Array') {
+        maxGuess = 4294967295;
+      } else if (ctorName === 'Float32Array' || ctorName === 'Float64Array') {
+        // sample to estimate range
+        const step = Math.max(1, Math.floor((rasters as any).length / 20000));
+        let localMax = 0;
+        for (let k = 0; k < (rasters as any).length; k += step) {
+          const v = (rasters as any)[k];
+          if (!Number.isNaN(v) && v > localMax) localMax = v;
+        }
+        if (localMax <= 1.05) assume0to1 = true;
+        else if (localMax <= 255) maxGuess = 255;
+        else maxGuess = localMax;
+      }
+
+      const toByte = (v: number): number => {
+        if (Number.isNaN(v)) return 0;
+        let out = v;
+        if (assume0to1) out = v * 255;
+        else if (maxGuess && maxGuess > 255) out = v * (255 / maxGuess);
+        // else assume already 0..255
+        if (out < 0) out = 0;
+        if (out > 255) out = 255;
+        return out;
+      };
+
+      const rgba = new Uint8ClampedArray(total * 4);
+      // Process in chunks to yield to the event loop and keep UI responsive
+      const PIXELS_PER_CHUNK = Math.max(50000, Math.floor(total / 12));
+
+      if (channels >= 3) {
+        let p = 0;
+        let i = 0;
+        while (p < total) {
+          const end = Math.min(total, p + PIXELS_PER_CHUNK);
+          for (; p < end; p++, i += channels) {
+            rgba[p * 4 + 0] = toByte(rasters[i]);
+            rgba[p * 4 + 1] = toByte(rasters[i + 1]);
+            rgba[p * 4 + 2] = toByte(rasters[i + 2]);
+            rgba[p * 4 + 3] = channels >= 4 ? toByte(rasters[i + 3]) : 230;
+          }
+          // Yield
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((r) => setTimeout(r, 0));
+        }
+      } else {
+        // single band -> categorical color mapping for visibility
+        const colorForCategory = (k: number): [number, number, number] => {
+          // stable vivid color per category id using HSL
+          const h = ((k * 47) % 360 + 360) % 360; // ensure 0..359
+          const s = 80; // saturation
+          const l = 55; // lightness
+          const c = (1 - Math.abs(2 * (l / 100) - 1)) * (s / 100);
+          const hPrime = h / 60;
+          const x = c * (1 - Math.abs((hPrime % 2) - 1));
+          let r1 = 0, g1 = 0, b1 = 0;
+          if (0 <= hPrime && hPrime < 1) { r1 = c; g1 = x; b1 = 0; }
+          else if (1 <= hPrime && hPrime < 2) { r1 = x; g1 = c; b1 = 0; }
+          else if (2 <= hPrime && hPrime < 3) { r1 = 0; g1 = c; b1 = x; }
+          else if (3 <= hPrime && hPrime < 4) { r1 = 0; g1 = x; b1 = c; }
+          else if (4 <= hPrime && hPrime < 5) { r1 = x; g1 = 0; b1 = c; }
+          else { r1 = c; g1 = 0; b1 = x; }
+          const m = (l / 100) - c / 2;
+          return [Math.round(255 * (r1 + m)), Math.round(255 * (g1 + m)), Math.round(255 * (b1 + m))];
+        };
+
+        let p = 0;
+        while (p < total) {
+          const end = Math.min(total, p + PIXELS_PER_CHUNK);
+          for (; p < end; p++) {
+            const raw = (rasters as any)[p];
+            const isWater = (noDataValue !== null && raw === noDataValue) || !Number.isFinite(raw) || raw <= 0;
+            if (isWater) {
+              rgba[p * 4 + 0] = 255;
+              rgba[p * 4 + 1] = 255;
+              rgba[p * 4 + 2] = 255;
+              rgba[p * 4 + 3] = 255; // solid white for water
+            } else {
+              const cat = Math.round(raw);
+              const [r, g, b] = colorForCategory(cat);
+              rgba[p * 4 + 0] = r;
+              rgba[p * 4 + 1] = g;
+              rgba[p * 4 + 2] = b;
+              rgba[p * 4 + 3] = 230;
+            }
+          }
+          // Yield
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((r) => setTimeout(r, 0));
+        }
+      }
+
+      const imgData = new ImageData(rgba, targetW, targetH);
+      ctx.putImageData(imgData, 0, 0);
+
+      // Compute bounds from GeoTIFF metadata
+      const fd = image.fileDirectory || {};
+      let minX: number, minY: number, maxX: number, maxY: number;
+      if (typeof image.getBoundingBox === 'function') {
+        const bbox: number[] = image.getBoundingBox();
+        [minX, minY, maxX, maxY] = bbox;
+      } else if (fd.ModelTiepoint && fd.ModelPixelScale) {
+        const tie = fd.ModelTiepoint; // [i,j,k, x,y,z, ...]
+        const scale = fd.ModelPixelScale; // [scaleX, scaleY, scaleZ]
+        const i = tie[0];
+        const j = tie[1];
+        const x = tie[3];
+        const y = tie[4];
+        const scaleX = scale[0];
+        const scaleY = scale[1];
+        minX = x + (0 - i) * scaleX;
+        maxY = y + (0 - j) * scaleY;
+        maxX = minX + width * scaleX;
+        minY = maxY - height * scaleY;
+      } else {
+        throw new Error('Geo-referencing not found in TIFF');
+      }
+
+      // Handle antimeridian (dateline) crossing by splitting into two overlays if needed
+      const clampLon = (lon: number) => Math.max(-179.999, Math.min(179.999, lon));
+      const spans0360 = minX >= 0 && maxX > 180;
+      const crosses180 = minX < 180 && maxX > 180;
+
+      let overlaysToSet: google.maps.GroundOverlay[] = [];
+      if (spans0360 || crosses180) {
+        const frac = (180 - minX) / (maxX - minX);
+        const cutCol = Math.max(0, Math.min(targetW, Math.round(frac * targetW)));
+
+        const leftCanvas = document.createElement('canvas');
+        leftCanvas.width = cutCol; leftCanvas.height = targetH;
+        const lctx = leftCanvas.getContext('2d');
+        if (!lctx) throw new Error('Canvas 2D context unavailable');
+        lctx.drawImage(canvas, 0, 0, cutCol, targetH, 0, 0, cutCol, targetH);
+
+        const rightCanvas = document.createElement('canvas');
+        rightCanvas.width = Math.max(0, targetW - cutCol); rightCanvas.height = targetH;
+        const rctx = rightCanvas.getContext('2d');
+        if (!rctx) throw new Error('Canvas 2D context unavailable');
+        rctx.drawImage(canvas, cutCol, 0, targetW - cutCol, targetH, 0, 0, targetW - cutCol, targetH);
+
+        const leftBounds = new google.maps.LatLngBounds(
+          new google.maps.LatLng(minY, clampLon(minX)),
+          new google.maps.LatLng(maxY, 179.999)
+        );
+        const rightBounds = new google.maps.LatLngBounds(
+          new google.maps.LatLng(minY, -179.999),
+          new google.maps.LatLng(maxY, clampLon(maxX - 360))
+        );
+
+        const leftOverlay = new google.maps.GroundOverlay(leftCanvas.toDataURL('image/png'), leftBounds, { opacity: 0.85, clickable: false });
+        const rightOverlay = new google.maps.GroundOverlay(rightCanvas.toDataURL('image/png'), rightBounds, { opacity: 0.85, clickable: false });
+        overlaysToSet = [leftOverlay, rightOverlay];
+      } else {
+        const bounds2 = new google.maps.LatLngBounds(
+          new google.maps.LatLng(minY, clampLon(Math.min(minX, maxX))),
+          new google.maps.LatLng(maxY, clampLon(Math.max(minX, maxX)))
+        );
+        const overlay = new google.maps.GroundOverlay(canvas.toDataURL('image/png'), bounds2, { opacity: 0.85, clickable: false });
+        overlaysToSet = [overlay];
+      }
+
+      overlaysToSet.forEach(ov => { if (attach) ov.setMap(map); });
+      setKoppenOverlays(overlaysToSet);
+      setKoppenVisible(attach);
+    } catch (e) {
+      console.error('Failed to load koppen.tif:', e);
+    } finally {
+      if (showSpinner) setLoadingKoppen(false);
+    }
+  };
+
+  const toggleKoppenOverlay = async () => {
+    if (koppenOverlays.length === 0) {
+      await loadKoppenOverlay({ attach: true, showSpinner: true });
+    } else {
+      if (koppenVisible) {
+        koppenOverlays.forEach(ov => ov.setMap(null));
+        setKoppenVisible(false);
+      } else {
+        koppenOverlays.forEach(ov => ov.setMap(map));
+        setKoppenVisible(true);
+      }
+    }
+  };
+
   return (
-    isMobile ? (
+    <>
+      {loadingKoppen && <RouteLoading />}
+      {isMobile ? (
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 1000, pointerEvents: 'none' }}>
         <div
           style={{
@@ -689,6 +963,9 @@ function DrawingTools() {
             <button onClick={deleteSelectedShape} style={{ flex: 1, padding: 10, border: '1px solid #ef4444', borderRadius: 8, background: '#991b1b', color: 'white' }}>Delete</button>
             <button onClick={clearAll} style={{ flex: 1, padding: 10, border: '1px solid #4b5563', borderRadius: 8, background: '#374151', color: 'white' }}>Clear</button>
             <button onClick={generateRandomMarkers} style={{ flexBasis: '100%', padding: 10, border: '1px solid #059669', borderRadius: 8, background: '#10b981', color: 'white' }}>Generate Markers</button>
+            <button onClick={toggleKoppenOverlay} disabled={loadingKoppen} style={{ flexBasis: '100%', padding: 10, border: '1px solid #3b82f6', borderRadius: 8, background: koppenVisible ? '#2563eb' : '#1f2937', color: koppenVisible ? 'white' : '#e5e7eb', opacity: loadingKoppen ? 0.7 : 1 }}>
+              {koppenVisible ? 'Hide Köppen' : (loadingKoppen ? 'Loading…' : 'Show Köppen')}
+            </button>
           </div>
 
           {sheetOpen && (
@@ -765,6 +1042,10 @@ function DrawingTools() {
             padding: '6px 10px', border: '1px solid #059669', borderRadius: '4px',
             background: '#10b981', color: 'white', cursor: 'pointer', fontSize: '11px'
           }}>Generate Markers</button>
+          <button onClick={toggleKoppenOverlay} disabled={loadingKoppen} style={{
+            padding: '6px 10px', border: '1px solid #3b82f6', borderRadius: '4px',
+            background: koppenVisible ? '#2563eb' : '#1f2937', color: koppenVisible ? 'white' : '#e5e7eb', cursor: 'pointer', fontSize: '11px', opacity: loadingKoppen ? 0.7 : 1
+          }}>{koppenVisible ? 'Hide Köppen' : (loadingKoppen ? 'Loading…' : 'Show Köppen')}</button>
         </div>
         <div style={{ fontSize: '10px', color: '#e5e7eb', background: '#0f172a', padding: '4px', borderRadius: '3px', border: '1px solid #374151' }}>
           Shapes: {shapes.length}
@@ -786,7 +1067,8 @@ function DrawingTools() {
           </div>
         )}
       </div>
-    )
+    )}
+    </>
   );
 }
 
