@@ -108,7 +108,7 @@ const useFeatureAnimations = (
 };
 
 // --- ScrollCarousel Component ---
-export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
+const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
   ({ features, className, maxScrollHeight }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
