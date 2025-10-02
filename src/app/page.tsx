@@ -8,12 +8,8 @@ import Shuffle from "@/components/Shuffle";
 import { Map, Flower2, Pencil, Globe, Moon, Search, LucideIcon } from "lucide-react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/components/lib/utils";
-<<<<<<< HEAD
-import ScrollVelocity from "@/components/ScrollVelocity";
-import { SeasonalHoverCards } from "@/components/lightswind/seasonal-hover-cards";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-=======
->>>>>>> 16f5ae5a9788d1d73f0137beead0fe2c81c4257c
+import Lenis from "lenis";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -51,10 +47,8 @@ const useFeatureAnimations = (
         const viewportOffset = (containerWidth - cardWidth) / 2;
 
         const finalOffset1 = scrollWidth1 - containerWidth + viewportOffset;
-        
         const scrollDistance = maxScrollHeight || finalOffset1;
 
-        
         gsap
           .timeline({
             scrollTrigger: {
@@ -71,7 +65,6 @@ const useFeatureAnimations = (
             { x: -finalOffset1 + viewportOffset, ease: "none" }
           );
 
-        
         gsap.to(progressBarRef.current, {
           width: "100%",
           ease: "none",
@@ -122,8 +115,6 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
     const cardRefs = useRef<HTMLDivElement[]>([]);
     const [isDesktop, setIsDesktop] = useState(false);
 
-    
-    
     useEffect(() => {
       const checkDesktop = () => {
         setIsDesktop(window.matchMedia("(min-width: 768px)").matches);
@@ -207,7 +198,6 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
             {renderFeatureCards(features, cardRefs)}
           </div>
 
-          
           {isDesktop && (
             <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-64 h-2 bg-white/30 dark:bg-black/30 z-50 overflow-hidden rounded-full">
               <div
@@ -251,7 +241,7 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
 
 (ScrollCarousel as any).displayName = "ScrollCarousel";
 
-// --- BoldTitle Block (inserted between hero and carousel) ---
+// --- BoldTitle Block ---
 function BoldTitleBlock() {
   const boldTitle = useRef<HTMLDivElement | null>(null);
   const boldTitleLeft = useRef<HTMLSpanElement | null>(null);
@@ -269,18 +259,8 @@ function BoldTitleBlock() {
         },
       });
 
-      tl.fromTo(
-        boldTitleLeft.current,
-        { xPercent: -50 },
-        { xPercent: -10 },
-        0
-      );
-      tl.fromTo(
-        boldTitleRight.current,
-        { xPercent: 50 },
-        { xPercent: 10 },
-        0
-      );
+      tl.fromTo(boldTitleLeft.current, { xPercent: -50 }, { xPercent: -10 }, 0);
+      tl.fromTo(boldTitleRight.current, { xPercent: 50 }, { xPercent: 10 }, 0);
     },
     { scope: boldTitle }
   );
@@ -288,8 +268,11 @@ function BoldTitleBlock() {
   return (
     <section className="relative bg-neutral-950 text-white pt-6 pb-12 sm:pt-8 sm:pb-14 md:pt-6 md:pb-16 overflow-hidden">
       <div className="max-w-6xl mx-auto px-6">
-        <div ref={boldTitle} className="grid grid-cols-12 md:grid-rows-3 gap-y-8 md:gap-y-10 md:gap-x-12 gap-x-6 items-center">
-          {/* Left half of the sentence (explicitly columns 1-4) */}
+        <div
+          ref={boldTitle}
+          className="grid grid-cols-12 md:grid-rows-3 gap-y-8 md:gap-y-10 md:gap-x-12 gap-x-6 items-center"
+        >
+          {/* Left half of the sentence (columns 1-4) */}
           <div className="hidden md:block md:col-start-1 md:col-span-4 md:row-span-3 justify-self-end self-center pr-8">
             <ScrollReveal
               size="sm"
@@ -306,18 +289,24 @@ function BoldTitleBlock() {
             </ScrollReveal>
           </div>
 
-          {/* Center animated title (explicitly columns 5-8) */}
-          <span ref={boldTitleLeft} className="col-span-12 md:col-start-5 md:col-span-4 md:row-start-1 text-center font-extrabold leading-tight text-5xl sm:text-6xl md:text-7xl lg:text-8xl will-change-transform">
+          {/* Center animated title (columns 5-8) */}
+          <span
+            ref={boldTitleLeft}
+            className="col-span-12 md:col-start-5 md:col-span-4 md:row-start-1 text-center font-extrabold leading-tight text-5xl sm:text-6xl md:text-7xl lg:text-8xl will-change-transform"
+          >
             Kaalnetra
           </span>
           <span className="col-span-12 md:col-start-5 md:col-span-4 md:row-start-2 text-center italic font-extrabold leading-tight text-5xl sm:text-6xl md:text-7xl lg:text-8xl">
             Flora
           </span>
-          <span ref={boldTitleRight} className="col-span-12 md:col-start-5 md:col-span-4 md:row-start-3 text-center font-extrabold leading-tight text-5xl sm:text-6xl md:text-7xl lg:text-8xl will-change-transform">
+          <span
+            ref={boldTitleRight}
+            className="col-span-12 md:col-start-5 md:col-span-4 md:row-start-3 text-center font-extrabold leading-tight text-5xl sm:text-6xl md:text-7xl lg:text-8xl will-change-transform"
+          >
             Atlas
           </span>
 
-          {/* Right half of the sentence (explicitly columns 9-12) */}
+          {/* Right half of the sentence (columns 9-12) */}
           <div className="hidden md:block md:col-start-9 md:col-span-4 md:row-span-3 justify-self-start self-center pl-8">
             <ScrollReveal
               size="sm"
@@ -356,11 +345,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const id = setInterval(() => setSyncTick(t => t + 1), 4000);
+    const id = setInterval(() => setSyncTick((t) => t + 1), 4000);
     return () => clearInterval(id);
   }, []);
 
-<<<<<<< HEAD
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -375,9 +363,10 @@ export default function Home() {
     }
     requestAnimationFrame(raf);
 
-    // Sync with ScrollTrigger
-    lenis.on('scroll', () => {
-      try { ScrollTrigger.update(); } catch {}
+    lenis.on("scroll", () => {
+      try {
+        ScrollTrigger.update();
+      } catch {}
     });
 
     return () => {
@@ -385,42 +374,48 @@ export default function Home() {
     };
   }, []);
 
-=======
->>>>>>> 16f5ae5a9788d1d73f0137beead0fe2c81c4257c
-  useGSAP(() => {
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    tl.from(".hero-overlay", { opacity: 0, duration: 0.6 })
-      .from(".hero-title", { y: 24, opacity: 0, duration: 0.8 }, "-=0.3")
-      .from(".hero-copy", { y: 16, opacity: 0, duration: 0.6 }, "-=0.35")
-      .fromTo(".hero-cta", { y: 12, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.5 }, "-=0.35");
+  useGSAP(
+    () => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      tl
+        .from(".hero-overlay", { opacity: 0, duration: 0.6 })
+        .from(".hero-title", { y: 24, opacity: 0, duration: 0.8 }, "-=0.3")
+        .from(".hero-copy", { y: 16, opacity: 0, duration: 0.6 }, "-=0.35")
+        .fromTo(
+          ".hero-cta",
+          { y: 12, autoAlpha: 0 },
+          { y: 0, autoAlpha: 1, duration: 0.5 },
+          "-=0.35"
+        );
 
-    if (videoRef.current) {
-      gsap.fromTo(
-        videoRef.current,
-        { scale: 1 },
-        { scale: 1.05, duration: 12, ease: "none" }
-      );
-    }
+      if (videoRef.current) {
+        gsap.fromTo(videoRef.current, { scale: 1 }, { scale: 1.05, duration: 12, ease: "none" });
+      }
 
-    tl.add(() => {
-      gsap.set(".hero-cta", { clearProps: "opacity,visibility" });
-    });
-
-    const prefersReduced = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!prefersReduced) {
-      const loopDelay = tl.duration() + 0.2;
-      gsap.set(".hero-cta", { transformOrigin: "50% 50%", y: 0, scale: 1 });
-      gsap.to(".hero-cta", {
-        y: -2,
-        scale: 1.03,
-        duration: 1.2,
-        ease: "sine.inOut",
-        repeat: -1,
-        yoyo: true,
-        delay: loopDelay,
+      tl.add(() => {
+        gsap.set(".hero-cta", { clearProps: "opacity,visibility" });
       });
-    }
-  }, { scope: containerRef });
+
+      const prefersReduced =
+        typeof window !== "undefined" &&
+        window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!prefersReduced) {
+        const loopDelay = tl.duration() + 0.2;
+        gsap.set(".hero-cta", { transformOrigin: "50% 50%", y: 0, scale: 1 });
+        gsap.to(".hero-cta", {
+          y: -2,
+          scale: 1.03,
+          duration: 1.2,
+          ease: "sine.inOut",
+          repeat: -1,
+          yoyo: true,
+          delay: loopDelay,
+        });
+      }
+    },
+    { scope: containerRef }
+  );
 
   return (
     <>
@@ -484,10 +479,10 @@ export default function Home() {
         </main>
       </div>
 
-      {/* Inserted BoldTitle animation block here */}
+      {/* Bold title animation block */}
       <BoldTitleBlock />
 
-      
+      {/* Scroll carousel section */}
       <section className="w-full bg-neutral-950 text-white pt-6 pb-16 sm:pt-8 sm:pb-20 md:pt-10 md:pb-24">
         <div className="w-full max-w-6xl mx-auto px-6">
           <ScrollCarousel
@@ -502,52 +497,6 @@ export default function Home() {
             ]}
             maxScrollHeight={2000}
           />
-<<<<<<< HEAD
-        </div>
-        <div className="w-full mt-20 md:mt-28">
-          <ScrollVelocity
-            texts={[
-              "Kaalnetra • Flora Atlas • Phenology • Earth Data • Satellites • Climate • Seasons",
-              "Kaalnetra • Flora Atlas • Phenology • Earth Data • Satellites • Climate • Seasons",
-            ]}
-            velocity={100}
-            className="text-3xl md:text-5xl"
-            numCopies={8}
-            parallaxClassName="py-2"
-          />
-        </div>
-        <div className="w-full">
-          <SeasonalHoverCards
-            className="mt-25 md:mt-34"
-            cards={[
-              {
-                title: "Global Insights",
-                subtitle: "Bloom patterns and climate correlations",
-                description:
-                  "Explore flowering cycles across regions and understand climate-driven variations.",
-                imageSrc: "/Pictures/Summer1.jpg",
-                imageAlt: "Global insights image",
-              },
-              {
-                title: "Real-time Phenology",
-                subtitle: "What's blooming now",
-                description:
-                  "Track live flowering windows and phenology shifts with seasonal context.",
-                imageSrc: "/Pictures/wallpaperflare.com_wallpaper (1).jpg",
-                imageAlt: "Real-time phenology image",
-              },
-              {
-                title: "Explore Regions",
-                subtitle: "Compare seasonal changes",
-                description:
-                  "Zoom into any region and compare species seasons across geography.",
-                imageSrc: "/Pictures/wallpaperflare.com_wallpaper (2).jpg",
-                imageAlt: "Explore regions image",
-              },
-            ]}
-          />
-=======
->>>>>>> 16f5ae5a9788d1d73f0137beead0fe2c81c4257c
         </div>
       </section>
     </>
