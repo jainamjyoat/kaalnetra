@@ -60,13 +60,10 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
     } catch {}
 
     const defs = [
-      { selector: '[data-tour="tool-rectangle"]', title: 'Rectangle', content: 'Draw a rectangular area for analysis.' },
-      { selector: '[data-tour="tool-circle"]', title: 'Circle', content: 'Draw a circular area for analysis.' },
-      { selector: '[data-tour="tool-polygon"]', title: 'Polygon', content: 'Draw a custom polygon area for analysis.' },
+      { selector: '[data-tour="tools-shapes-group"]', title: 'Draw tools', content: 'Use Rectangle, Circle, or Polygon to draw an area for analysis.' },
       { selector: '[data-tour="tool-clear"]', title: 'Clear', content: 'Remove the drawn shape and reset the analysis.' },
       { selector: '[data-tour="tool-theme"]', title: 'Theme', content: 'Toggle between dark and light map themes.' },
-      { selector: '[data-tour="input-month"]', title: 'Month', content: 'Select the month for the ecology analysis.' },
-      { selector: '[data-tour="input-year"]', title: 'Year', content: 'Select the year for the ecology analysis.' },
+      { selector: '[data-tour="input-time"]', title: 'Time', content: 'Select the month and year for the ecology analysis.' },
       { selector: '[data-tour="run-analysis"]', title: 'Run Analysis', content: 'Run the ecology analysis for the selected shape and time.' },
     ];
     const available = defs
@@ -266,20 +263,22 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
     <>
       <div style={{ position: 'absolute', top: '80px', left: '24px', zIndex: 1000, background: '#0f172a', color: '#e5e7eb', padding: '14px', borderRadius: '10px', boxShadow: '0 2px 18px rgba(0,0,0,0.42)', display: 'flex', flexDirection: 'column', gap: '12px', minWidth: '320px' }}>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <button data-tour="tool-rectangle" onClick={() => handleToolSelect('rectangle')} style={btnStyle('rectangle')}>Rectangle</button>
+          <div data-tour="tools-shapes-group" style={{ display: 'flex', gap: '8px' }}>
+            <button data-tour="tool-rectangle" onClick={() => handleToolSelect('rectangle')} style={btnStyle('rectangle')}>Rectangle</button>
           <button data-tour="tool-circle" onClick={() => handleToolSelect('circle')} style={btnStyle('circle')}>Circle</button>
           <button data-tour="tool-polygon" onClick={() => handleToolSelect('polygon')} style={btnStyle('polygon')}>Polygon</button>
+          </div>
           <button data-tour="tool-clear" onClick={deleteSelectedShape} style={{...btnStyle(''), background: '#374151'}}>Clear</button>
           <button data-tour="tool-theme" onClick={onToggleDarkMode} style={{...btnStyle(''), background: darkMode ? '#d97706' : '#1f2937' }}>{darkMode ? '☀️' : '🌙'}</button>
         </div>
         
         <div style={{ borderTop: '1px solid #374151', paddingTop: '12px', marginTop: '4px' }}>
           <h3 style={{ margin: '0 0 8px 0', fontSize: '14px' }}>🔬 Ecology Analysis</h3>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
+          <div data-tour="input-time" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
             <label style={{fontSize: '12px'}}>Month:</label>
-            <input data-tour="input-month" type="number" min="1" max="12" value={analysisMonth} onChange={(e) => setAnalysisMonth(parseInt(e.target.value))} style={{ width: '60px', background: '#1f2937', color: 'white', border: '1px solid #374151', borderRadius: '4px', padding: '4px' }}/>
+            <input type="number" min="1" max="12" value={analysisMonth} onChange={(e) => setAnalysisMonth(parseInt(e.target.value))} style={{ width: '60px', background: '#1f2937', color: 'white', border: '1px solid #374151', borderRadius: '4px', padding: '4px' }}/>
             <label style={{fontSize: '12px'}}>Year:</label>
-            <input data-tour="input-year" type="number" value={analysisYear} onChange={(e) => setAnalysisYear(parseInt(e.target.value))} style={{ width: '80px', background: '#1f2937', color: 'white', border: '1px solid #374151', borderRadius: '4px', padding: '4px' }}/>
+            <input type="number" value={analysisYear} onChange={(e) => setAnalysisYear(parseInt(e.target.value))} style={{ width: '80px', background: '#1f2937', color: 'white', border: '1px solid #374151', borderRadius: '4px', padding: '4px' }}/>
           </div>
           <button data-tour="run-analysis" onClick={handleAnalysis} disabled={isLoadingAnalysis || shapes.length === 0} style={{ width: '100%', padding: '8px', border: '1px solid #059669', borderRadius: '4px', background: '#10b981', color: 'white', cursor: 'pointer', opacity: (isLoadingAnalysis || shapes.length === 0) ? 0.6 : 1 }}>
             {isLoadingAnalysis ? 'Analyzing...' : 'Run Analysis'}
