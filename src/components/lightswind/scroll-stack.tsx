@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 export interface ScrollStackCard {
   title: string;
   subtitle?: string;
+  description?: string;
   badge?: string;
   backgroundImage?: string;
   content?: React.ReactNode;
@@ -24,6 +25,24 @@ const defaultBackgrounds = [
   "https://images.pexels.com/photos/6985128/pexels-photo-6985128.jpeg",
   "https://images.pexels.com/photos/2847648/pexels-photo-2847648.jpeg",
 ];
+
+const biosByTitle: Record<string, string> = {
+  "Global Phenology":
+    "Discover how flowering phases shift across regions and elevations. We combine satellite timelines with on-ground observations to surface what’s blooming now – and what’s next.",
+  "Climate Signals":
+    "See temperature, rainfall, and sunlight trends alongside bloom windows. Understand seasonal shifts, anomalies, and the subtle signals that guide flowering.",
+  "Habitat Explorer":
+    "Browse biomes and plant communities, from alpine meadows to tropical forests. Learn how soil, slope, and microclimate shape which species thrive together.",
+};
+
+function buildDescription(card: ScrollStackCard): string {
+  if (card.description) return card.description;
+  if (card.title in biosByTitle) return biosByTitle[card.title];
+  if (card.subtitle) {
+    return `${card.subtitle} – Explore species, patterns, and stories behind the landscapes.`;
+  }
+  return "Explore species, patterns, and stories behind the landscapes.";
+}
 
 const ScrollStack: React.FC<ScrollStackProps> = ({
   cards,
@@ -143,6 +162,7 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
                 const backgroundImage =
                   card.backgroundImage ||
                   defaultBackgrounds[index % defaultBackgrounds.length];
+                const isActive = activeCardIndex === index;
 
                 return (
                   <div
@@ -186,15 +206,33 @@ const ScrollStack: React.FC<ScrollStackProps> = ({
                       {card.content ? (
                         card.content
                       ) : (
-                        <div className="max-w-lg">
-                          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-tight mb-4">
+                        <div className="max-w-lg space-y-3">
+                          <h3
+                            className={`text-white font-bold text-2xl sm:text-3xl md:text-4xl leading-tight will-change-transform transition-all duration-500 ${
+                              isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+                            }`}
+                            style={{ transitionDelay: isActive ? "0ms" : "0ms" }}
+                          >
                             {card.title}
                           </h3>
                           {card.subtitle && (
-                            <p className="text-lg text-white/80">
+                            <p
+                              className={`text-white/85 text-lg will-change-transform transition-all duration-500 ${
+                                isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+                              }`}
+                              style={{ transitionDelay: isActive ? "120ms" : "0ms" }}
+                            >
                               {card.subtitle}
                             </p>
                           )}
+                          <p
+                            className={`text-white/80 text-base leading-relaxed will-change-transform transition-all duration-500 ${
+                              isActive ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"
+                            }`}
+                            style={{ transitionDelay: isActive ? "200ms" : "0ms" }}
+                          >
+                            {buildDescription(card as any)}
+                          </p>
                         </div>
                       )}
                     </div>
