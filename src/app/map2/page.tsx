@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { APIProvider, Map as GoogleMap } from '@vis.gl/react-google-maps';
 import NavBar from '@/components/NavBar';
-import RouteLoading from '../map/loading';
+import RouteLoading from './loading';
 import DrawingTools from '@/components/map/DrawingTools'; // Correct Path
 
 type AppConfig = {

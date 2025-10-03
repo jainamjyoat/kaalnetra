@@ -9,7 +9,7 @@ import { Rocket } from "./Nav/Home";
 
 const links = [
   { name: "Home", href: "/" },
-  { name: "Map", href: "/map" },
+  { name: "Map", href: "/map2" },
   { name: "Data Portal", href: "/dataportal" },
   { name: "Prediction Analysis", href: "/prediction-analysis" },
 ];
@@ -67,7 +67,7 @@ export default function NavBar() {
                 </Link>
               );
             }
-            if (href === "/map") {
+            if (href === "/map2") {
               return (
                 <Link
                   key={href}
