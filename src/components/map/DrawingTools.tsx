@@ -45,6 +45,15 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
 
   // Initialize steps after mount
   useEffect(() => {
+    // Respect prior completion
+    try {
+      const seen = localStorage.getItem('tour_drawing_tools_completed') === '1';
+      if (seen) {
+        setTourActive(false);
+        return;
+      }
+    } catch {}
+
     const defs = [
       { selector: '[data-tour="tool-rectangle"]', title: 'Rectangle', content: 'Draw a rectangular area for analysis.' },
       { selector: '[data-tour="tool-circle"]', title: 'Circle', content: 'Draw a circular area for analysis.' },
@@ -86,11 +95,15 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
     };
   }, [tourActive, tourSteps, tourIndex]);
 
+  const finishTour = () => {
+    try { localStorage.setItem('tour_drawing_tools_completed', '1'); } catch {}
+    setTourActive(false);
+  };
   const nextTour = () => {
     if (tourIndex < tourSteps.length - 1) setTourIndex((i) => i + 1);
-    else setTourActive(false);
+    else finishTour();
   };
-  const skipTour = () => setTourActive(false);
+  const skipTour = () => finishTour();
 
   useEffect(() => {
     if (!map) return;
@@ -330,7 +343,7 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
             <div className="mt-3 flex gap-2 justify-end">
               <button
                 type="button"
-                onClick={() => setTourActive(false)}
+                onClick={finishTour}
                 className="px-3 py-1 rounded-md border border-white/10 text-neutral-300 hover:bg-white/5"
               >
                 Skip
