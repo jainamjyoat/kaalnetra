@@ -83,6 +83,7 @@ const defaultStackCards: ScrollStackCard[] = [
   },
 ];
 
+
 const seasonalCards: SeasonCardProps[] = [
   {
     title: "Spring",
@@ -414,6 +415,10 @@ export default function Home() {
 
       <section className="bg-neutral-950 text-white">
         <div className="max-w-7xl mx-auto px-6 pt-6 pb-10 md:pt-8 md:pb-12">
+          <h1 className="text-4xl font-bold text-center p-6 mt-2">
+  Seasonal Flower Gallery
+</h1>
+
           <SeasonalHoverCards cards={seasonalCards} />
         </div>
       </section>
