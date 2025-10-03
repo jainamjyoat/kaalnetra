@@ -42,7 +42,7 @@ const BackToTop: React.FC = () => {
   }, []);
 
   return (
-    <StyledWrapper visible={visible}>
+    <StyledWrapper $visible={visible}>
       <button className="button" onClick={scrollToTop} aria-label="Back to top" title="Back to Top">
         <svg viewBox="0 0 384 512" className="svgIcon" aria-hidden="true" focusable="false">
           <path d="M214.6 41.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 141.2V448c0 17.7 14.3 32 32 32s32-14.3 32-32V141.2L329.4 246.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z" />
@@ -52,15 +52,15 @@ const BackToTop: React.FC = () => {
   );
 };
 
-const StyledWrapper = styled.div<{ visible: boolean }>`
+const StyledWrapper = styled.div<{ $visible: boolean }>`
   position: fixed;
   left: 50%; /* center horizontally */
   right: auto;
   bottom: 3rem; /* 48px */
   z-index: 50;
-  opacity: ${(p) => (p.visible ? 1 : 0)};
-  transform: translate(-50%, ${(p) => (p.visible ? "0" : "10px")});
-  pointer-events: ${(p) => (p.visible ? "auto" : "none")};
+  opacity: ${(p) => (p.$visible ? 1 : 0)};
+  transform: translate(-50%, ${(p) => (p.$visible ? "0" : "10px")});
+  pointer-events: ${(p) => (p.$visible ? "auto" : "none")};
   transition: opacity 0.3s ease, transform 0.3s ease;
 
   .button {

@@ -4,7 +4,6 @@ import React, {
   useEffect,
   useRef,
   useState,
-  useLayoutEffect,
   forwardRef,
 } from "react";
 import { gsap } from "gsap";
@@ -14,7 +13,9 @@ import { LucideIcon } from "lucide-react";
 // Assuming these are external, import them
 import { cn } from "../lib/utils";
 
-gsap.registerPlugin(ScrollTrigger);
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 // --- Component Props and Types ---
 // Define a type for a single feature object
@@ -33,108 +34,107 @@ export interface ScrollCarouselProps {
 }
 
 // --- Custom Hook for Animations ---
-const useFeatureAnimations = (
-  containerRef: React.RefObject<HTMLDivElement>,
-  scrollContainerRef: React.RefObject<HTMLDivElement>,
-  scrollContainerRef2: React.RefObject<HTMLDivElement>,
-  progressBarRef: React.RefObject<HTMLDivElement>,
+const initFeatureAnimations = (
+  containerRef: React.MutableRefObject<HTMLDivElement | null>,
+  scrollContainerRef: React.MutableRefObject<HTMLDivElement | null>,
+  scrollContainerRef2: React.MutableRefObject<HTMLDivElement | null>,
+  progressBarRef: React.MutableRefObject<HTMLDivElement | null>,
   cardRefs: React.MutableRefObject<HTMLDivElement[]>,
   cardRefs2: React.MutableRefObject<HTMLDivElement[]>,
   isDesktop: boolean,
   maxScrollHeight?: number
 ) => {
-  useLayoutEffect(() => {
-    let ctx = gsap.context(() => {
-      // Desktop horizontal scroll logic
-      if (isDesktop) {
-        const scrollWidth1 = scrollContainerRef.current?.scrollWidth || 0;
-        const scrollWidth2 = scrollContainerRef2.current?.scrollWidth || 0;
-        const containerWidth = containerRef.current?.offsetWidth || 0;
-        const cardWidth = cardRefs.current[0]?.offsetWidth || 0;
-        const viewportOffset = (containerWidth - cardWidth) / 2;
+  if (typeof window === "undefined") return () => {};
+  const ctx = gsap.context(() => {
+    // Desktop horizontal scroll logic
+    if (isDesktop) {
+      const scrollWidth1 = scrollContainerRef.current?.scrollWidth || 0;
+      const scrollWidth2 = scrollContainerRef2.current?.scrollWidth || 0;
+      const containerWidth = containerRef.current?.offsetWidth || 0;
+      const cardWidth = cardRefs.current[0]?.offsetWidth || 0;
+      const viewportOffset = (containerWidth - cardWidth) / 2;
 
-        const finalOffset1 = scrollWidth1 - containerWidth + viewportOffset;
-        const finalOffset2 = scrollWidth2 - containerWidth + viewportOffset;
+      const finalOffset1 = scrollWidth1 - containerWidth + viewportOffset;
+      const finalOffset2 = scrollWidth2 - containerWidth + viewportOffset;
 
-        // Use the provided maxScrollHeight or the calculated offset as the scroll distance
-        // Reduce this distance to increase perceived scroll speed (smaller = faster)
-        const speedFactor = 0.5; // 0.5 => ~2x faster, adjust as needed
-        const scrollDistance = (maxScrollHeight || finalOffset1) * speedFactor;
+      // Use the provided maxScrollHeight or the calculated offset as the scroll distance
+      // Reduce this distance to increase perceived scroll speed (smaller = faster)
+      const speedFactor = 0.5; // 0.5 => ~2x faster, adjust as needed
+      const scrollDistance = (maxScrollHeight || finalOffset1) * speedFactor;
 
-        gsap.set(scrollContainerRef2.current, {
-          x: -finalOffset2 + viewportOffset * 2,
-        });
+      gsap.set(scrollContainerRef2.current, {
+        x: -finalOffset2 + viewportOffset * 2,
+      });
 
-        gsap
-          .timeline({
-            scrollTrigger: {
-              trigger: containerRef.current,
-              start: "top top",
-              end: () => `+=${scrollDistance}`,
-              scrub: 1,
-              pin: true,
-            },
-          })
-          .fromTo(
-            scrollContainerRef.current,
-            { x: viewportOffset },
-            { x: -finalOffset1 + viewportOffset, ease: "none" }
-          );
-
-        gsap
-          .timeline({
-            scrollTrigger: {
-              trigger: containerRef.current,
-              start: "top top",
-              end: () => `+=${scrollDistance}`,
-              scrub: 1,
-            },
-          })
-          .to(scrollContainerRef2.current, { x: viewportOffset, ease: "none" });
-
-        gsap.to(progressBarRef.current, {
-          width: "100%",
-          ease: "none",
+      gsap
+        .timeline({
           scrollTrigger: {
             trigger: containerRef.current,
             start: "top top",
             end: () => `+=${scrollDistance}`,
-            scrub: true,
+            scrub: 1,
+            pin: true,
           },
-        });
-      } else {
-        // Mobile vertical scroll logic
-        const allCards = [...cardRefs.current, ...cardRefs2.current];
-        allCards.forEach((card, index) => {
-          if (card) {
-            gsap.fromTo(
-              card,
-              {
-                opacity: 0,
-                x: index % 2 === 0 ? -200 : 200,
-              },
-              {
-                opacity: 1,
-                x: 0,
-                duration: 1,
-                ease: "power2.out",
-                scrollTrigger: {
-                  trigger: card,
-                  start: "top 0%",
-                  toggleActions: "play none none none",
-                  once: true,
-                },
-              }
-            );
-          }
-        });
-      }
-    }, containerRef);
+        })
+        .fromTo(
+          scrollContainerRef.current,
+          { x: viewportOffset },
+          { x: -finalOffset1 + viewportOffset, ease: "none" }
+        );
 
-    return () => {
-      ctx.revert();
-    };
-  }, [isDesktop, maxScrollHeight]);
+      gsap
+        .timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top top",
+            end: () => `+=${scrollDistance}`,
+            scrub: 1,
+          },
+        })
+        .to(scrollContainerRef2.current, { x: viewportOffset, ease: "none" });
+
+      gsap.to(progressBarRef.current, {
+        width: "100%",
+        ease: "none",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: () => `+=${scrollDistance}`,
+          scrub: true,
+        },
+      });
+    } else {
+      // Mobile vertical scroll logic
+      const allCards = [...cardRefs.current, ...cardRefs2.current];
+      allCards.forEach((card, index) => {
+        if (card) {
+          gsap.fromTo(
+            card,
+            {
+              opacity: 0,
+              x: index % 2 === 0 ? -200 : 200,
+            },
+            {
+              opacity: 1,
+              x: 0,
+              duration: 1,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: card,
+                start: "top 0%",
+                toggleActions: "play none none none",
+                once: true,
+              },
+            }
+          );
+        }
+      });
+    }
+  }, containerRef);
+
+  return () => {
+    ctx.revert();
+  };
 };
 
 // --- Component Definition ---
@@ -160,16 +160,19 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
       return () => window.removeEventListener("resize", checkDesktop);
     }, []);
 
-    useFeatureAnimations(
-      containerRef,
-      scrollContainerRef,
-      scrollContainerRef2,
-      progressBarRef,
-      cardRefs,
-      cardRefs2,
-      isDesktop,
-      maxScrollHeight
-    );
+    useEffect(() => {
+      const cleanup = initFeatureAnimations(
+        containerRef,
+        scrollContainerRef,
+        scrollContainerRef2,
+        progressBarRef,
+        cardRefs,
+        cardRefs2,
+        isDesktop,
+        maxScrollHeight
+      );
+      return cleanup;
+    }, [isDesktop, maxScrollHeight]);
 
     const renderFeatureCards = (
       featureSet: FeatureItem[],

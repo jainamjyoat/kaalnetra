@@ -11,7 +11,7 @@ import { cn } from "@/components/lib/utils";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import Lenis from "lenis";
 
-import ScrollCarousel, { type FeatureItem } from "@/components/lightswind/scroll-carousel";
+import type { FeatureItem } from "@/components/lightswind/scroll-carousel";
 import ScrollVelocity from "@/components/ScrollVelocity";
 import ScrollStack, { type ScrollStackCard } from "@/components/lightswind/scroll-stack";
 import { SeasonalHoverCards, type SeasonCardProps } from "@/components/lightswind/seasonal-hover-cards";
@@ -20,6 +20,10 @@ import BackToTop from "@/components/Buttons/BackToTop";
 gsap.registerPlugin(ScrollTrigger);
 
 const StartButon1 = dynamic(() => import("@/components/Buttons/StartButon1"), { ssr: false });
+const ScrollCarousel = dynamic(
+  () => import("@/components/lightswind/scroll-carousel"),
+  { ssr: false }
+);
 
 // Feature cards used by ScrollCarousel
 const features: FeatureItem[] = [
