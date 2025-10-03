@@ -11,8 +11,8 @@ import { cn } from "@/components/lib/utils";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import Lenis from "lenis";
 
-import type { FeatureItem } from "@/components/lightswind/scroll-carousel";
-import ScrollVelocity from "@/components/ScrollVelocity";
+// import type { FeatureItem } from "@/components/lightswind/scroll-carousel";
+// import ScrollVelocity from "@/components/ScrollVelocity";
 import ScrollStack, { type ScrollStackCard } from "@/components/lightswind/scroll-stack";
 import { SeasonalHoverCards, type SeasonCardProps } from "@/components/lightswind/seasonal-hover-cards";
 import BackToTop from "@/components/Buttons/BackToTop";
@@ -20,50 +20,50 @@ import BackToTop from "@/components/Buttons/BackToTop";
 gsap.registerPlugin(ScrollTrigger);
 
 const StartButon1 = dynamic(() => import("@/components/Buttons/StartButon1"), { ssr: false });
-const ScrollCarousel = dynamic(
-  () => import("@/components/lightswind/scroll-carousel"),
-  { ssr: false }
-);
+// const ScrollCarousel = dynamic(
+//   () => import("@/components/lightswind/scroll-carousel"),
+//   { ssr: false }
+// );
 
-// Feature cards used by ScrollCarousel
-const features: FeatureItem[] = [
-  {
-    icon: Flower2,
-    title: "Lavender",
-    description: "Calming scent with purple spikes and silvery foliage.",
-    image: "/Pictures/wallpaperflare.com_wallpaper.jpg",
-  },
-  {
-    icon: Globe,
-    title: "Dahlia",
-    description: "Layered petals with striking symmetry and vivid colors.",
-    image: "/Pictures/wallpaperflare.com_wallpaper (1).jpg",
-  },
-  {
-    icon: Map,
-    title: "Hydrangea",
-    description: "Globes of clustered blossoms that shift color with soil pH.",
-    image: "/Pictures/wallpaperflare.com_wallpaper (4).jpg",
-  },
-  {
-    icon: Moon,
-    title: "Orchid",
-    description: "Exotic forms and diverse patterns across thousands of species.",
-    image: "/Pictures/wallpaperflare.com_wallpaper (5).jpg",
-  },
-  {
-    icon: Search,
-    title: "Sunflower",
-    description: "Heliotropic heads that follow the sun across the sky.",
-    image: "/Pictures/wallpaperflare.com_wallpaper (6).jpg",
-  },
-  {
-    icon: Pencil,
-    title: "Rose",
-    description: "Classic petals with layered fragrance and timeless charm.",
-    image: "/Pictures/wallpaperflare.com_wallpaper (2).jpg",
-  },
-];
+// // Feature cards used by ScrollCarousel
+// const features: FeatureItem[] = [
+//   {
+//     icon: Flower2,
+//     title: "Lavender",
+//     description: "Calming scent with purple spikes and silvery foliage.",
+//     image: "/Pictures/wallpaperflare.com_wallpaper.jpg",
+//   },
+//   {
+//     icon: Globe,
+//     title: "Dahlia",
+//     description: "Layered petals with striking symmetry and vivid colors.",
+//     image: "/Pictures/wallpaperflare.com_wallpaper (1).jpg",
+//   },
+//   {
+//     icon: Map,
+//     title: "Hydrangea",
+//     description: "Globes of clustered blossoms that shift color with soil pH.",
+//     image: "/Pictures/wallpaperflare.com_wallpaper (4).jpg",
+//   },
+//   {
+//     icon: Moon,
+//     title: "Orchid",
+//     description: "Exotic forms and diverse patterns across thousands of species.",
+//     image: "/Pictures/wallpaperflare.com_wallpaper (5).jpg",
+//   },
+//   {
+//     icon: Search,
+//     title: "Sunflower",
+//     description: "Heliotropic heads that follow the sun across the sky.",
+//     image: "/Pictures/wallpaperflare.com_wallpaper (6).jpg",
+//   },
+//   {
+//     icon: Pencil,
+//     title: "Rose",
+//     description: "Classic petals with layered fragrance and timeless charm.",
+//     image: "/Pictures/wallpaperflare.com_wallpaper (2).jpg",
+//   },
+// ];
 
 const defaultStackCards: ScrollStackCard[] = [
   {
@@ -139,7 +139,7 @@ function BoldTitleBlock() {
   );
 
   return (
-    <section className="relative bg-neutral-950 text-white pt-10 pb-12 sm:pt-12 sm:pb-14 md:pt-12 md:pb-16 overflow-hidden">
+    <section className="relative bg-neutral-950 text-white pt-8 pb-6 sm:pt-10 sm:pb-8 md:pt-10 md:pb-10 overflow-hidden">
       <div className="max-w-6xl mx-auto px-6">
         <div
           ref={boldTitle}
@@ -394,26 +394,26 @@ export default function Home() {
       {/* Bold title animation block */}
       <BoldTitleBlock />
 
-      <section className="bg-neutral-950 text-white">
+      {/* <section className="bg-neutral-950 text-white">
         <div className="max-w-7xl mx-auto px-6 py-12 md:py-20">
           <ScrollCarousel features={features} />
         </div>
-      </section>
+      </section> */}
 
-      <section className="bg-neutral-950 text-white">
+      {/* <section className="bg-neutral-950 text-white">
         <div className="max-w-7xl mx-auto px-6 py-8 md:py-12">
           <ScrollVelocity texts={features.map((f) => f.title)} velocity={100} />
         </div>
-      </section>
+      </section> */}
 
       <section className="bg-neutral-950 text-white">
-        <div className="max-w-7xl mx-auto px-6 py-12 md:py-20">
+        <div className="max-w-7xl mx-auto px-6 py-6 md:py-8">
           <ScrollStack cards={defaultStackCards} />
         </div>
       </section>
 
       <section className="bg-neutral-950 text-white">
-        <div className="max-w-7xl mx-auto px-6 py-12 md:py-20">
+        <div className="max-w-7xl mx-auto px-6 pt-6 pb-10 md:pt-8 md:pb-12">
           <SeasonalHoverCards cards={seasonalCards} />
         </div>
       </section>
