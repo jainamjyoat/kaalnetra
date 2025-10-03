@@ -40,3 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 backend/
+
+# local cache for summaries (do not commit)
+/data/
+!data/.gitkeep
+/data/flower-summaries.json

@@ -126,5 +126,29 @@
     "biome_name": "Hot-summer humid continental",
     "modelUsed": "gemini-2.5-flash",
     "generatedAt": "2025-10-03T21:26:55.586Z"
+  },
+  "eriogonum fasciculatum::hot-summer mediterranean": {
+    "summary": "Eriogonum fasciculatum, or California buckwheat, is a dominant evergreen shrub found across the dry slopes and chaparral of California and Baja California. This mounding plant is characterized by small, woolly leaves and abundant clusters of tiny white to pinkish flowers. It blooms profusely from late spring through fall, often nearly year-round. A critical nectar source for numerous pollinators, especially honeybees, it is vital to its ecosystem and historically provided medicinal teas for indigenous peoples.",
+    "scientific_name": "Eriogonum fasciculatum",
+    "common_name": "California Buckwheat",
+    "biome_name": "Hot-summer Mediterranean",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:28:56.181Z"
+  },
+  "nicotiana glauca::hot-summer mediterranean": {
+    "summary": "Nicotiana glauca, or Tree Tobacco, is a naturalized shrub or small tree commonly found in disturbed areas, roadsides, and dry washes throughout Hot-summer Mediterranean biomes. It is recognized by its smooth, blue-green leaves and produces characteristic long, tubular, yellow flowers that can appear almost year-round, peaking in spring and summer. As an invasive species, it readily colonizes open ground, often outcompeting native plants, and all parts of the plant are toxic.",
+    "scientific_name": "Nicotiana glauca",
+    "common_name": "tree tobacco",
+    "biome_name": "Hot-summer Mediterranean",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:29:07.180Z"
+  },
+  "chamaenerion angustifolium::hot-summer humid continental": {
+    "summary": "Chamaenerion angustifolium, or fireweed, commonly thrives in disturbed areas, forest clearings, and along roadsides throughout the Hot-summer humid continental biome. This tall perennial is notable for its striking pyramidal spikes of showy magenta-pink flowers and lance-shaped leaves. Typically, it blooms from mid-summer through late summer, attracting numerous pollinators. Fireweed is a vital pioneer species, helping to stabilize soil after disturbances, and is a significant nectar source, often producing a distinctive honey.",
+    "scientific_name": "Chamaenerion angustifolium",
+    "common_name": "fireweed",
+    "biome_name": "Hot-summer humid continental",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:31:03.564Z"
   }
 }
