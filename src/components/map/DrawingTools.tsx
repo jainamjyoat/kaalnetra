@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Marker, InfoWindow, useMap } from '@vis.gl/react-google-maps';
-import DayNight from '@/components/Buttons/DayNight';
+import { Marker, InfoWindow, useMap, AdvancedMarker } from '@vis.gl/react-google-maps';
+import FLOWER_PIN from './flower pin.gif';
 
 // --- Type Definitions ---
 interface DrawingToolsProps {
@@ -207,6 +207,11 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
 
   const btnStyle = (tool: string) => ({ padding: '8px 12px', border: '1px solid #374151', borderRadius: '4px', background: selectedTool === tool ? '#2563eb' : '#1f2937', color: 'white', cursor: 'pointer' });
 
+  // Media used for the custom map marker loaded from src/components/map/flower pin.gif
+  // Next.js image imports can return an object (StaticImport). Resolve to a string URL.
+  const FLOWER_PIN_SRC: string = (typeof FLOWER_PIN === 'string' ? FLOWER_PIN : (FLOWER_PIN as any)?.src ?? '');
+  const PUBLIC_FLOWER_PIN_SRC = '/Video/flower%20pin.gif';
+
   // Local fallback summary generator (used if Gemini fails)
   const fallbackSummary = (s: Species, biomeName: string) => {
     const name = s.common_name || s.scientific_name || 'This plant';
@@ -265,7 +270,7 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
           <button data-tour="tool-circle" onClick={() => handleToolSelect('circle')} style={btnStyle('circle')}>Circle</button>
           <button data-tour="tool-polygon" onClick={() => handleToolSelect('polygon')} style={btnStyle('polygon')}>Polygon</button>
           <button data-tour="tool-clear" onClick={deleteSelectedShape} style={{...btnStyle(''), background: '#374151'}}>Clear</button>
-          <DayNight data-tour="tool-theme" checked={!darkMode} onChange={() => onToggleDarkMode()} style={{ fontSize: '8px' }} />
+          <button data-tour="tool-theme" onClick={onToggleDarkMode} style={{...btnStyle(''), background: darkMode ? '#d97706' : '#1f2937' }}>{darkMode ? '☀️' : '🌙'}</button>
         </div>
         
         <div style={{ borderTop: '1px solid #374151', paddingTop: '12px', marginTop: '4px' }}>
@@ -285,12 +290,24 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
       {/* NEW: Loop to render a marker for each biome */}
       {analysisResult?.results.map((result) => (
         <React.Fragment key={result.biome}>
-          <Marker
+          <AdvancedMarker
             position={result.location}
             title={result.biome_name}
             onClick={() => { setSelectedBiome(result); setModalOpen(true); }}
-            label="📍"
-          />
+          >
+            <img
+              src={FLOWER_PIN_SRC || PUBLIC_FLOWER_PIN_SRC}
+              alt={result.biome_name}
+              draggable={false}
+              style={{ width: 56, height: 56, display: 'block' }}
+              onError={(e) => {
+                const t = e.currentTarget as HTMLImageElement;
+                if (t.src !== PUBLIC_FLOWER_PIN_SRC) {
+                  t.src = PUBLIC_FLOWER_PIN_SRC;
+                }
+              }}
+            />
+          </AdvancedMarker>
         </React.Fragment>
       ))}
 
@@ -382,6 +399,7 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
         </div>
       )}
 
+      
       {tourActive && tourRect && (
         <>
           {/* Overlay blocker to prevent interactions */}
