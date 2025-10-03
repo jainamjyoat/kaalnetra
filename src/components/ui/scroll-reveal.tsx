@@ -139,7 +139,7 @@ export function ScrollReveal({
     <motion.div
       ref={containerRef}
       style={{ rotate: rotation as unknown as number }}
-      className={cn("my-5 transform-gpu", containerClassName)}
+      className={cn("mt-16 mb-5 transform-gpu", containerClassName)}
     >
       <motion.p
         className={cn(
