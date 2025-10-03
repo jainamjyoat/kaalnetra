@@ -385,7 +385,7 @@ export default function Home() {
               Explore real-time flowering and plant phenology across the globe. Discover what blooms where, when, and why — powered by interactive maps and rich environmental context.
             </p>
             <div className="flex gap-4 mb-10 hero-cta">
-              <Link href="/map"><StartButon1 /></Link>
+              <Link href="/map2"><StartButon1 /></Link>
             </div>
           </div>
         </main>
