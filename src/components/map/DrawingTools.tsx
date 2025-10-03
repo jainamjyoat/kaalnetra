@@ -63,6 +63,7 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
       { selector: '[data-tour="tools-shapes-group"]', title: 'Draw tools', content: 'Use Rectangle, Circle, or Polygon to draw an area for analysis.' },
       { selector: '[data-tour="tool-clear"]', title: 'Clear', content: 'Remove the drawn shape and reset the analysis.' },
       { selector: '[data-tour="tool-theme"]', title: 'Theme', content: 'Toggle between dark and light map themes.' },
+      { selector: '[data-tour="tools-zoom-group"]', title: 'Zoom', content: 'Use + and − to zoom the map.' },
       { selector: '[data-tour="input-time"]', title: 'Time', content: 'Select the month and year for the ecology analysis.' },
       { selector: '[data-tour="run-analysis"]', title: 'Run Analysis', content: 'Run the ecology analysis for the selected shape and time.' },
     ];
@@ -146,6 +147,13 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
     shapes.forEach(s => (s as any).setMap(null));
     setShapes([]);
     setAnalysisResult(null);
+  };
+
+  const handleZoom = (delta: number) => {
+    if (!map) return;
+    const current = map.getZoom() ?? 0;
+    const next = Math.min(21, Math.max(1, current + delta));
+    map.setZoom(next);
   };
 
   const handleAnalysis = async () => {
@@ -270,6 +278,10 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
           </div>
           <button data-tour="tool-clear" onClick={deleteSelectedShape} style={{...btnStyle(''), background: '#374151'}}>Clear</button>
           <button data-tour="tool-theme" onClick={onToggleDarkMode} style={{...btnStyle(''), background: darkMode ? '#d97706' : '#1f2937' }}>{darkMode ? '☀️' : '🌙'}</button>
+          <div data-tour="tools-zoom-group" style={{ display: 'flex', gap: '8px' }}>
+            <button aria-label="Zoom in" onClick={() => handleZoom(1)} style={{...btnStyle(''), background: '#374151'}}>+</button>
+            <button aria-label="Zoom out" onClick={() => handleZoom(-1)} style={{...btnStyle(''), background: '#374151'}}>-</button>
+          </div>
         </div>
         
         <div style={{ borderTop: '1px solid #374151', paddingTop: '12px', marginTop: '4px' }}>
