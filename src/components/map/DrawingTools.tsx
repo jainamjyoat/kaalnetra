@@ -34,6 +34,8 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [isLoadingAnalysis, setIsLoadingAnalysis] = useState<boolean>(false);
   const [activeInfoWindow, setActiveInfoWindow] = useState<string | null>(null); // <-- Will now store the biome code
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [selectedBiome, setSelectedBiome] = useState<BiomeResult | null>(null);
 
   // Guided tour state for DrawingTools controls
   const [tourActive, setTourActive] = useState(false);
@@ -218,33 +220,77 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
           <Marker
             position={result.location}
             title={result.biome_name}
-            onClick={() => setActiveInfoWindow(result.biome)}
+            onClick={() => { setSelectedBiome(result); setModalOpen(true); }}
             label="📍"
           />
-          
-          {activeInfoWindow === result.biome && (
-            <InfoWindow
-              position={result.location}
-              onCloseClick={() => setActiveInfoWindow(null)}
-            >
-              <div style={{ maxHeight: '250px', overflowY: 'auto', padding: '5px', color: '#111', minWidth: '280px' }}>
-                <h4>{result.biome_name} ({result.biome})</h4>
-                <div style={{fontSize: '12px', background: '#f0f0f0', padding: '4px 8px', borderRadius: '4px', margin: '4px 0'}}>
-                  Temp: {result.climate_data.temperature}°C | Precip: {result.climate_data.precipitation}mm | Rad: {result.climate_data.radiation}
-                </div>
-                <strong style={{fontSize: '13px'}}>Species:</strong>
-                <ul style={{ paddingLeft: '20px', margin: '5px 0' }}>
-                  {result.species.map((s) => <li key={s.scientific_name}>{s.common_name} ({s.phenophase})</li>)}
-                </ul>
-                <strong style={{fontSize: '13px'}}>Pests:</strong>
-                 <ul style={{ paddingLeft: '20px', margin: '5px 0' }}>
-                  {result.pests.map((p) => <li key={p.scientific_name_pest}>{p.common_name_pest}</li>)}
-                </ul>
-              </div>
-            </InfoWindow>
-          )}
         </React.Fragment>
       ))}
+
+      {/* Modal for biome details */}
+      {modalOpen && selectedBiome && (
+        <div className="biome-modal-backdrop" onClick={() => setModalOpen(false)}>
+          <div className="biome-modal pop-in" onClick={(e) => e.stopPropagation()}>
+            <div className="biome-header">
+              <div className="biome-title">{selectedBiome.biome_name} <span className="biome-code">({selectedBiome.biome})</span></div>
+              <button className="biome-close" onClick={() => setModalOpen(false)}>×</button>
+              <div className="biome-sub">Köppen code: {selectedBiome.biome}</div>
+            </div>
+            <div className="biome-metrics">
+              <div className="metric"><div className="metric-label">Temperature</div><div className="metric-value">{selectedBiome.climate_data.temperature}°C</div></div>
+              <div className="metric"><div className="metric-label">Precipitation</div><div className="metric-value">{selectedBiome.climate_data.precipitation} mm/day</div></div>
+              <div className="metric"><div className="metric-label">Radiation</div><div className="metric-value">{selectedBiome.climate_data.radiation} W/m²</div></div>
+            </div>
+            <div className="biome-section">
+              <div className="section-title">Predicted species</div>
+              <div className="chips">
+                {selectedBiome.species.slice(0,20).map((s) => (
+                  <span key={s.scientific_name} className="chip">
+                    {s.common_name} <em className="chip-sub">{s.phenophase}</em>
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="biome-section">
+              <div className="section-title">Predicted pests</div>
+              <div className="chips">
+                {selectedBiome.pests.slice(0,20).map((p) => (
+                  <span key={p.scientific_name_pest} className="chip chip-danger">
+                    {p.common_name_pest}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="biome-foot">
+              <span className="foot-pill">Lat: {selectedBiome.location.lat.toFixed(3)}</span>
+              <span className="foot-pill">Lng: {selectedBiome.location.lng.toFixed(3)}</span>
+            </div>
+          </div>
+          <style>{`
+            .biome-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.55); backdrop-filter: blur(2px); z-index: 4000; display: grid; place-items: center; }
+            .biome-modal { width: min(92vw, 760px); max-height: 82vh; overflow: hidden auto; color: #fff; background: linear-gradient(180deg,#0f172a 0%, #111827 100%); border-radius: 16px; box-shadow: 0 18px 42px rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,0.08); }
+            .pop-in { animation: biomePop .35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+            @keyframes biomePop { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+            .biome-header { position: sticky; top: 0; z-index: 1; padding: 16px; background: radial-gradient(80% 120% at 0% 0%, rgba(16,185,129,0.25) 0%, rgba(0,0,0,0) 60%), radial-gradient(80% 120% at 100% 0%, rgba(59,130,246,0.25) 0%, rgba(0,0,0,0) 60%), #0f172a; border-bottom: 1px solid rgba(255,255,255,0.08); }
+            .biome-title { font-weight: 800; font-size: 18px; letter-spacing: .2px; }
+            .biome-code { font-weight: 600; color: rgba(255,255,255,.85); }
+            .biome-sub { font-size: 12px; color: rgba(255,255,255,.7); margin-top: 2px; }
+            .biome-close { position: absolute; right: 12px; top: 12px; width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); color: #fff; font-size: 20px; line-height: 28px; text-align: center; cursor: pointer; }
+            .biome-close:hover { background: rgba(255,255,255,.12); }
+            .biome-metrics { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; padding: 14px 16px; }
+            .metric { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 10px; text-align: center; }
+            .metric-label { font-size: 11px; color: rgba(255,255,255,.75); }
+            .metric-value { font-size: 14px; font-weight: 800; margin-top: 2px; }
+            .biome-section { padding: 8px 16px 14px; }
+            .section-title { font-size: 12px; color: rgba(255,255,255,.7); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .06em; }
+            .chips { display: flex; flex-wrap: wrap; gap: 8px; max-height: 180px; overflow: auto; }
+            .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #e5e7eb; background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.25); padding: 6px 10px; border-radius: 999px; }
+            .chip-sub { font-style: normal; color: #93c5fd; font-weight: 600; }
+            .chip-danger { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.25); }
+            .biome-foot { padding: 12px 16px 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+            .foot-pill { font-size: 11px; color: rgba(255,255,255,.85); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); padding: 4px 8px; border-radius: 999px; }
+          `}</style>
+        </div>
+      )}
 
       {tourActive && tourRect && (
         <>
