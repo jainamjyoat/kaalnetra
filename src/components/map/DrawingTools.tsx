@@ -36,6 +36,10 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
   const [activeInfoWindow, setActiveInfoWindow] = useState<string | null>(null); // <-- Will now store the biome code
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [selectedBiome, setSelectedBiome] = useState<BiomeResult | null>(null);
+  const [summaryMap, setSummaryMap] = useState<Record<string, string>>({});
+  const [summaryLoading, setSummaryLoading] = useState<boolean>(false);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [activeSpeciesKey, setActiveSpeciesKey] = useState<string | null>(null);
 
   // Guided tour state for DrawingTools controls
   const [tourActive, setTourActive] = useState(false);
@@ -202,6 +206,56 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
 
   const btnStyle = (tool: string) => ({ padding: '8px 12px', border: '1px solid #374151', borderRadius: '4px', background: selectedTool === tool ? '#2563eb' : '#1f2937', color: 'white', cursor: 'pointer' });
 
+  // Local fallback summary generator (used if Gemini fails)
+  const fallbackSummary = (s: Species, biomeName: string) => {
+    const name = s.common_name || s.scientific_name || 'This plant';
+    const sci = s.scientific_name ? ` (${s.scientific_name})` : '';
+    const stage = s.phenophase ? ` It is typically observed in the ${s.phenophase.toLowerCase()} stage during its active season.` : '';
+    const biomeText = biomeName ? ` Within the ${biomeName} biome, it adapts to local climate patterns and soils.` : '';
+    return `${name}${sci} is a commonly documented species in this region.${biomeText}${stage}`.trim();
+  };
+
+  // Fetch a summary for a given species (cached by scientific/common name + biome)
+  const fetchSummary = async (s: Species, biomeName: string) => {
+    const key = `${s.scientific_name || s.common_name}::${selectedBiome?.biome || biomeName}`;
+    if (!key || summaryMap[key]) return;
+    try {
+      setSummaryError(null);
+      setSummaryLoading(true);
+      const res = await fetch('/api/flower-summary', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scientific_name: s.scientific_name, common_name: s.common_name, biome_name: biomeName })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Failed to get summary');
+      setSummaryMap((m) => ({ ...m, [key]: data.summary || 'No summary available.' }));
+    } catch (e: any) {
+      // Graceful fallback: synthesize a concise local summary
+      setSummaryMap((m) => ({ ...m, [key]: fallbackSummary(s, biomeName) }));
+      setSummaryError(null);
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
+  // When modal opens, auto-select the first species (fetch handled in activeSpeciesKey effect)
+  React.useEffect(() => {
+    if (!modalOpen || !selectedBiome) return;
+    const first = selectedBiome.species[0];
+    if (!first) return;
+    const key = `${first.scientific_name || first.common_name}::${selectedBiome.biome}`;
+    setActiveSpeciesKey(key);
+    // Do not fetch here; avoid double requests. Fetch occurs when activeSpeciesKey changes.
+  }, [modalOpen, selectedBiome]);
+
+  // When the active species changes, fetch if not cached
+  React.useEffect(() => {
+    if (!activeSpeciesKey || !selectedBiome) return;
+    const name = activeSpeciesKey.split('::')[0];
+    const s = selectedBiome.species.find(x => (x.scientific_name || x.common_name) === name);
+    if (s && !summaryMap[activeSpeciesKey]) fetchSummary(s, selectedBiome.biome_name);
+  }, [activeSpeciesKey]);
+
   return (
     <>
       <div style={{ position: 'absolute', top: '80px', left: '24px', zIndex: 1000, background: '#0f172a', color: '#e5e7eb', padding: '14px', borderRadius: '10px', boxShadow: '0 2px 18px rgba(0,0,0,0.42)', display: 'flex', flexDirection: 'column', gap: '12px', minWidth: '320px' }}>
@@ -256,11 +310,19 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
             <div className="biome-section">
               <div className="section-title">Predicted species</div>
               <div className="chips">
-                {selectedBiome.species.slice(0,20).map((s) => (
-                  <span key={s.scientific_name} className="chip">
-                    {s.common_name} <em className="chip-sub">{s.phenophase}</em>
-                  </span>
-                ))}
+                {selectedBiome.species.slice(0,20).map((s) => {
+                  const cacheKey = `${s.scientific_name || s.common_name}::${selectedBiome.biome}`;
+                  const isActive = activeSpeciesKey === cacheKey;
+                  return (
+                    <span
+                      key={s.scientific_name}
+                      className={`chip ${isActive ? 'active' : ''}`}
+                      onClick={() => setActiveSpeciesKey(cacheKey)}
+                    >
+                      {s.common_name} <em className="chip-sub">{s.phenophase}</em>
+                    </span>
+                  );
+                })}
               </div>
             </div>
             <div className="biome-section">
@@ -273,11 +335,21 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
                 ))}
               </div>
             </div>
-            <div className="biome-foot">
-              <span className="foot-pill">Lat: {selectedBiome.location.lat.toFixed(3)}</span>
-              <span className="foot-pill">Lng: {selectedBiome.location.lng.toFixed(3)}</span>
+            <div className="biome-section">
+              <div className="section-title">Flower summary</div>
+              {summaryLoading ? (
+                <div className="summary loading">Fetching summary…</div>
+              ) : summaryError ? (
+                <div className="summary error">{summaryError}</div>
+              ) : (
+                <div className="summary">
+                  {activeSpeciesKey && summaryMap[activeSpeciesKey]
+                    ? summaryMap[activeSpeciesKey]
+                    : (activeSpeciesKey ? 'Tap a species above to load its summary.' : 'Tip: tap a species above to view its summary.')}
+                </div>
+              )}
             </div>
-          </div>
+                      </div>
           <style>{`
             .biome-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.55); backdrop-filter: blur(2px); z-index: 4000; display: grid; place-items: center; }
             .biome-modal { width: min(92vw, 760px); max-height: 82vh; overflow: hidden auto; color: #fff; background: linear-gradient(180deg,#0f172a 0%, #111827 100%); border-radius: 16px; box-shadow: 0 18px 42px rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,0.08); }
@@ -296,9 +368,13 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
             .biome-section { padding: 8px 16px 14px; }
             .section-title { font-size: 12px; color: rgba(255,255,255,.7); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .06em; }
             .chips { display: flex; flex-wrap: wrap; gap: 8px; max-height: 180px; overflow: auto; }
-            .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #e5e7eb; background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.25); padding: 6px 10px; border-radius: 999px; }
+            .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #e5e7eb; background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.25); padding: 6px 10px; border-radius: 999px; cursor: pointer; }
+            .chip.active { background: rgba(16,185,129,.16); border-color: rgba(16,185,129,.35); }
             .chip-sub { font-style: normal; color: #93c5fd; font-weight: 600; }
             .chip-danger { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.25); }
+            .summary { font-size: 13px; color: #e5e7eb; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); padding: 10px 12px; border-radius: 12px; line-height: 1.4; }
+            .summary.loading { color: #93c5fd; border-color: rgba(147,197,253,.35); background: rgba(59,130,246,.12); }
+            .summary.error { color: #fecaca; border-color: rgba(248,113,113,.35); background: rgba(248,113,113,.12); }
             .biome-foot { padding: 12px 16px 16px; display: flex; gap: 8px; flex-wrap: wrap; }
             .foot-pill { font-size: 11px; color: rgba(255,255,255,.85); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); padding: 4px 8px; border-radius: 999px; }
           `}</style>
