@@ -10,7 +10,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/components/lib/utils";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import Lenis from "lenis";
-import InfiniteMenu from "@/components/InfiniteMenu";
+// import InfiniteMenu from "@/components/InfiniteMenu";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -541,13 +541,13 @@ export default function Home() {
       </section>
 
       {/* Infinite flower menu (WebGL spheres with discs) */}
-      <section className="w-full bg-neutral-950 text-white py-20">
+      {/* <section className="w-full bg-neutral-950 text-white py-20">
         <div className="w-full max-w-6xl mx-auto px-6">
           <div style={{ height: '600px', position: 'relative' }}>
             <InfiniteMenu items={items} />
           </div>
         </div>
-      </section>
+      </section> */}
     </>
   );
 }
