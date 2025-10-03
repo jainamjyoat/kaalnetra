@@ -1,0 +1,130 @@
+{
+  "mimosa pudica::tropical monsoon": {
+    "summary": "Mimosa pudica is a common herbaceous plant primarily found in tropical monsoon biomes, flourishing in disturbed areas like roadsides, pastures, and open fields. Its most notable feature is the rapid folding of its fern-like leaves upon touch or disturbance, a fascinating thigmonastic response, and its stems often bear small prickles. It produces distinctive small, pink or purple, spherical flower heads, often blooming year-round in its native tropical climates. While often considered a weed, it is recognized for traditional medicinal uses and contributes to soil fertility through nitrogen fixation.",
+    "scientific_name": "Mimosa pudica",
+    "common_name": "Sensitive Plant",
+    "biome_name": "Tropical monsoon",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:20:01.132Z"
+  },
+  "asystasia intrusa::tropical monsoon": {
+    "summary": "In the tropical monsoon biome, Asystasia intrusa commonly thrives in disturbed areas like roadsides, forest margins, and cultivated lands. This herbaceous perennial is characterized by its trumpet-shaped white to pale lavender flowers, often with purple venation, borne in racemes. It exhibits a continuous flowering phenology throughout the year, especially post-rainfall. Primarily recognized as a vigorous weed, it competes with crops but also serves as ground cover and a minor food source for some insects.",
+    "scientific_name": "Asystasia intrusa",
+    "common_name": "African Coromandel",
+    "biome_name": "Tropical monsoon",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:20:10.445Z"
+  },
+  "catharanthus roseus::tropical monsoon": {
+    "summary": "Catharanthus roseus, known as Madagascar Periwinkle, is an evergreen subshrub widely naturalized across tropical monsoon regions, commonly found in disturbed areas and along roadsides. It features glossy dark green leaves and simple five-petaled flowers, typically white, pink, or rose, which bloom almost continuously throughout the year in warm climates. This plant is highly valued as an ornamental species and is crucially important in medicine as the source of potent anti-cancer alkaloids such as vinblastine and vincristine.",
+    "scientific_name": "Catharanthus roseus",
+    "common_name": "Madagascar Periwinkle",
+    "biome_name": "Tropical monsoon",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:20:23.067Z"
+  },
+  "lambertia formosa::subtropical highland": {
+    "summary": "Lambertia formosa, or Mountain Devil, commonly grows in dry sclerophyll forests and heathlands along Australia's east coast, including subtropical highland regions, often on sandy, nutrient-poor soils. This distinctive shrub is known for its bright red-orange tubular flowers and unique woody fruits that develop into hard, horn-like capsules resembling a devil's head. It primarily flowers from spring through summer, attracting nectar-feeding birds and insects, thus playing a role as a food source for native fauna. The striking, persistent fruits are also often used in dried floral arrangements.",
+    "scientific_name": "Lambertia formosa",
+    "common_name": "Mountain Devil",
+    "biome_name": "Subtropical highland",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:20:34.410Z"
+  },
+  "dipodium roseum::subtropical highland": {
+    "summary": "Dipodium roseum is a leafless, mycoheterotrophic terrestrial orchid commonly found in wet sclerophyll forests and rainforest margins of eastern Australia's subtropical highlands. It is readily identified by its vibrant pink to rose-red flowers, often spotted, borne on an unbranched, erect stem. Flowering typically occurs during summer, from December to March. This orchid plays a unique ecological role by deriving nutrients from fungi associated with other plants, rather than photosynthesis.",
+    "scientific_name": "Dipodium roseum",
+    "common_name": "Rosy Hyacinth Orchid",
+    "biome_name": "Subtropical highland",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:20:45.213Z"
+  },
+  "acacia suaveolens::subtropical highland": {
+    "summary": "Acacia suaveolens is an upright shrub, typically 1-3 meters tall, found in sandy soils and heathlands, including suitable elevated areas within the Subtropical highland biome of southeastern Australia. It is recognized by its linear to narrowly oblong, often greyish-green phyllodes and sweet-scented, pale yellow globose flower heads. These fragrant flowers usually appear from late summer through winter. As a native wattle, it plays an important ecological role in soil stabilization and provides habitat and food resources for local fauna.",
+    "scientific_name": "Acacia suaveolens",
+    "common_name": "Sweet Wattle",
+    "biome_name": "Subtropical highland",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:21:57.429Z"
+  },
+  "pseuderanthemum variabile::hot-summer humid continental": {
+    "summary": "Pseuderanthemum variabile, while native to subtropical and tropical rainforests of Australia, is not commonly found growing wild in the hot-summer humid continental biome. When cultivated in suitable microclimates within such regions, it exhibits slender stems and ovate green leaves, producing delicate white to pale purple, star-shaped flowers often with purple spots. Flowering typically occurs from late spring through autumn, extending its ornamental appeal. It is primarily grown as an attractive groundcover or container plant for its foliage and prolonged blooming period.",
+    "scientific_name": "Pseuderanthemum variabile",
+    "common_name": "Pastel Flower",
+    "biome_name": "Hot-summer humid continental",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:22:09.875Z"
+  },
+  "lonicera japonica::subtropical highland": {
+    "summary": "Lonicera japonica, a vigorous woody vine, commonly thrives in disturbed areas, forest edges, and open woods within subtropical highland biomes, often forming dense ground cover or climbing over other vegetation. It is recognized by its opposite oval leaves and highly fragrant, tubular flowers that open white/yellow, aging to cream/yellow, typically blooming from late spring through summer. While sometimes cultivated ornamentally or used in traditional medicine, its primary ecological role in this biome is that of a highly invasive species, capable of outcompeting and smothering native flora.",
+    "scientific_name": "Lonicera japonica",
+    "common_name": "Japanese honeysuckle",
+    "biome_name": "Subtropical highland",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:22:34.079Z"
+  },
+  "pseuderanthemum variabile::subtropical highland": {
+    "summary": "Pseuderanthemum variabile is a small, perennial herb or subshrub commonly found in the understory and margins of moist forests within subtropical highland regions of eastern Australia. It is characterized by its often purplish-backed leaves and tubular flowers, which display a range of colors from white to pale pink or lavender, often marked with purple spots or stripes. Flowering typically occurs from spring through autumn, providing nectar for various insects. Due to its attractive foliage and prolonged bloom, it is also valued as an ornamental plant for shaded gardens.",
+    "scientific_name": "Pseuderanthemum variabile",
+    "common_name": "Pastel Flower",
+    "biome_name": "Subtropical highland",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:22:43.921Z"
+  },
+  "solidago altissima::hot desert": {
+    "summary": "Solidago altissima, or tall goldenrod, is not a species typically found in hot desert biomes, as it thrives in moist, disturbed soils of temperate grasslands and open woodlands across North America. This robust perennial features tall, often unbranched stems reaching over two meters, topped with dense, pyramidal clusters of small, bright yellow flowers. Its prolific blooming occurs from late summer into fall, attracting numerous pollinators like bees and butterflies. Ecologically, it is a dominant competitor in successional fields, providing valuable late-season nectar, though it can become invasive outside its native range.",
+    "scientific_name": "Solidago altissima",
+    "common_name": "tall goldenrod",
+    "biome_name": "Hot desert",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:23:05.324Z"
+  },
+  "turnera subulata::hot desert": {
+    "summary": "While not typically native to arid hot desert biomes, *Turnera subulata* can sometimes establish in disturbed or irrigated areas within such regions, often as an ornamental. It is characterized by bright yellow or white, five-petaled flowers that often feature a darker center, opening in the morning and closing by early afternoon. Flowering occurs almost continuously throughout warm periods, particularly from spring through fall, given adequate moisture. Though primarily cultivated for its continuous blooms, its short-lived flowers attract various pollinators.",
+    "scientific_name": "Turnera subulata",
+    "common_name": "Cuban Buttercup",
+    "biome_name": "Hot desert",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:23:18.719Z"
+  },
+  "lamium purpureum::severely cold subarctic": {
+    "summary": "Lamium purpureum, or Purple Deadnettle, commonly colonizes disturbed ground such as garden edges, roadsides, and human settlements within the severely cold subarctic biome. This annual plant features square stems, heart-shaped leaves that develop a purplish tint at the top, and small pink-purple flowers arranged in whorls, notable for its non-stinging nature. It exhibits rapid growth and typically flowers from late spring through mid-summer, completing its life cycle during the brief subarctic growing season. Ecologically, it serves as an early season food source for foraging humans and a vital nectar provider for emerging pollinators.",
+    "scientific_name": "Lamium purpureum",
+    "common_name": "red deadnettle",
+    "biome_name": "Severely cold subarctic",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:24:09.447Z"
+  },
+  "tridax procumbens::hot desert": {
+    "summary": "Tridax procumbens is a resilient, low-growing herbaceous plant commonly found in disturbed areas, roadsides, and irrigated patches at the fringes of hot desert biomes. It is characterized by hairy, trailing stems, toothed leaves, and small daisy-like flower heads with white ray florets and yellow disc florets. This adaptable plant often flowers year-round in suitable conditions, with increased vigor following rainfall. While considered an invasive weed in many regions, Tridax procumbens also serves as fodder for livestock and is noted for its traditional medicinal uses, particularly for wound healing.",
+    "scientific_name": "Tridax procumbens",
+    "common_name": "Tridax daisy",
+    "biome_name": "Hot desert",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:25:01.596Z"
+  },
+  "olea europaea::hot-summer mediterranean": {
+    "summary": "Olea europaea thrives across the Hot-summer Mediterranean biome, favoring rocky hillsides and well-drained slopes. This long-lived evergreen tree is known for its gnarled trunk, silver-green lanceolate leaves, and exceptional drought tolerance. Flowering typically occurs from late spring to early summer, yielding small, creamy-white blossoms. Ecologically, it provides habitat, and economically, it is highly valued for its fruit (olives) and the oil extracted from them.",
+    "scientific_name": "Olea europaea",
+    "common_name": "Olive",
+    "biome_name": "Hot-summer Mediterranean",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:26:23.838Z"
+  },
+  "callicarpa americana::hot-summer mediterranean": {
+    "summary": "Callicarpa americana, a deciduous shrub native to the humid woodlands of the southeastern USA, can be cultivated in hot-summer Mediterranean climates with supplemental irrigation. It commonly grows to 3-6 feet, producing small, inconspicuous pinkish-white flowers in late spring to early summer. Its most striking feature is the dense clusters of vibrant, metallic-purple berries that ripen in late summer and persist into winter. These berries are a crucial food source for birds and wildlife, and the plant is also valued as an ornamental.",
+    "scientific_name": "Callicarpa americana",
+    "common_name": "American beautyberry",
+    "biome_name": "Hot-summer Mediterranean",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:26:41.669Z"
+  },
+  "actinotus helianthi::hot-summer humid continental": {
+    "summary": "Actinotus helianthi, commonly known as the Flannel Flower, is native to sandy soils and coastal heathlands of eastern Australia. Its most striking feature is its soft, white, woolly bracts that give the flower a distinctive flannel-like appearance, surrounding a central cluster of small true flowers. It typically flowers from spring through summer, although it is not commonly found growing naturally in a Hot-summer humid continental biome due to its preference for warmer, less extreme climates. Despite this, it is highly valued globally as a unique ornamental garden plant and a long-lasting cut flower.",
+    "scientific_name": "Actinotus helianthi",
+    "common_name": "Flannel Flower",
+    "biome_name": "Hot-summer humid continental",
+    "modelUsed": "gemini-2.5-flash",
+    "generatedAt": "2025-10-03T21:26:55.586Z"
+  }
+}
