@@ -222,7 +222,7 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
           </div>
 
           {isDesktop && (
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-64 h-2 bg-white/30 dark:bg-black/30 z-50 overflow-hidden rounded-full">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-64 h-2 bg-white/30 dark:bg-black/30 z-50 overflow-hidden rounded-full">
               <div
                 ref={progressBarRef}
                 className="h-full rounded-full relative overflow-hidden transition-all duration-100"
