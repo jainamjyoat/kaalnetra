@@ -147,40 +147,41 @@ html, body {
 }
 
 /* Global: hide system cursor by default to prevent SSR flash */
-html, body { cursor: none !important; }
+html, body { cursor: auto !important; }
 
 /* SmoothCursor: force-hide system cursor over interactive elements unless on /map */
-.has-smooth-cursor button,
-.has-smooth-cursor [role="button"],
-.has-smooth-cursor a,
-.has-smooth-cursor input[type="button"],
-.has-smooth-cursor input[type="submit"],
-.has-smooth-cursor input[type="reset"],
-.has-smooth-cursor .btn,
-.has-smooth-cursor .button,
-.has-smooth-cursor button:hover,
-.has-smooth-cursor [role="button"]:hover,
-.has-smooth-cursor a:hover,
-.has-smooth-cursor input[type="button"]:hover,
-.has-smooth-cursor input[type="submit"]:hover,
-.has-smooth-cursor input[type="reset"]:hover,
-.has-smooth-cursor .btn:hover,
-.has-smooth-cursor .button:hover,
-.has-smooth-cursor button:active,
-.has-smooth-cursor [role="button"]:active,
-.has-smooth-cursor a:active,
-.has-smooth-cursor input[type="button"]:active,
-.has-smooth-cursor input[type="submit"]:active,
-.has-smooth-cursor input[type="reset"]:active,
-.has-smooth-cursor .btn:active,
-.has-smooth-cursor .button:active,
-.has-smooth-cursor button:focus,
-.has-smooth-cursor [role="button"]:focus,
-.has-smooth-cursor a:focus,
-.has-smooth-cursor input[type="button"]:focus,
-.has-smooth-cursor input[type="submit"]:focus,
-.has-smooth-cursor input[type="reset"]:focus,
-.has-smooth-cursor .btn:focus,
-.has-smooth-cursor .button:focus {
+/* Disable custom-cursor hiding rules */
+/* .has-smooth-cursor button, */
+/* .has-smooth-cursor [role="button"], */
+/* .has-smooth-cursor a, */
+/* .has-smooth-cursor input[type="button"], */
+/* .has-smooth-cursor input[type="submit"], */
+/* .has-smooth-cursor input[type="reset"], */
+/* .has-smooth-cursor .btn, */
+/* .has-smooth-cursor .button, */
+/* .has-smooth-cursor button:hover, */
+/* .has-smooth-cursor [role="button"]:hover, */
+/* .has-smooth-cursor a:hover, */
+/* .has-smooth-cursor input[type="button"]:hover, */
+/* .has-smooth-cursor input[type="submit"]:hover, */
+/* .has-smooth-cursor input[type="reset"]:hover, */
+/* .has-smooth-cursor .btn:hover, */
+/* .has-smooth-cursor .button:hover, */
+/* .has-smooth-cursor button:active, */
+/* .has-smooth-cursor [role="button"]:active, */
+/* .has-smooth-cursor a:active, */
+/* .has-smooth-cursor input[type="button"]:active, */
+/* .has-smooth-cursor input[type="submit"]:active, */
+/* .has-smooth-cursor input[type="reset"]:active, */
+/* .has-smooth-cursor .btn:active, */
+/* .has-smooth-cursor .button:active, */
+/* .has-smooth-cursor button:focus, */
+/* .has-smooth-cursor [role="button"]:focus, */
+/* .has-smooth-cursor a:focus, */
+/* .has-smooth-cursor input[type="button"]:focus, */
+/* .has-smooth-cursor input[type="submit"]:focus, */
+/* .has-smooth-cursor input[type="reset"]:focus, */
+/* .has-smooth-cursor .btn:focus, */
+/* .has-smooth-cursor .button:focus {
   cursor: none !important;
-}
+} */
