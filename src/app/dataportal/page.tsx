@@ -103,7 +103,7 @@ export default function DataPortalPage() {
           <div className="px-6 pb-8 space-y-8">
             {/* Coming soon */}
             <div className="rounded-lg bg-neutral-800/60 p-6">
-              <h3 className="text-xl font-medium text-neutral-100 mb-4">Coming Soon</h3>
+              <h3 className="text-xl font-medium text-neutral-100 mb-4">Download Now</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {features.map((feature, i) => (
                   <div data-feature key={i} className="flex items-center gap-3">
@@ -118,10 +118,10 @@ export default function DataPortalPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <PlantButton
                 data-cta
-                href="/map"
+                href="https://drive.google.com/file/d/1Fe4TQx9ZgJEa2y5aZOYzlw_-DRCsIBdz/view?usp=sharing"
                 className="inline-flex items-center justify-center rounded-md bg-emerald-500 px-4 py-2 text-white hover:bg-emerald-600 transition-colors"
               >
-                Explore Bloom Map
+                Download Now
               </PlantButton>
               <Link
                 data-cta
