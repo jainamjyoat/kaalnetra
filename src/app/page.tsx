@@ -10,12 +10,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/components/lib/utils";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import Lenis from "lenis";
-import InfiniteMenu from "@/components/InfiniteMenu";
-import ScrollCarousel, { type FeatureItem } from "@/components/lightswind/scroll-carousel";
-import ScrollVelocity from "@/components/ScrollVelocity";
-import ScrollStack, { type ScrollStackCard } from "@/components/lightswind/scroll-stack";
-import { SeasonalHoverCards, type SeasonCardProps } from "@/components/lightswind/seasonal-hover-cards";
-import BackToTop from "@/components/Buttons/BackToTop";
+
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -402,19 +397,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-neutral-950 text-white">
-        <div className="max-w-7xl mx-auto px-6 py-12 md:py-20">
-          <ScrollStack cards={defaultStackCards} />
+      {/* Infinite flower menu (WebGL spheres with discs) */}
+      <section className="w-full bg-neutral-950 text-white py-20">
+        <div className="w-full max-w-6xl mx-auto px-6">
+          <div style={{ height: '600px', position: 'relative' }}>
+            <InfiniteMenu items={items} />
+          </div>
         </div>
       </section>
-
-      <section className="bg-neutral-950 text-white">
-        <div className="max-w-7xl mx-auto px-6 py-12 md:py-20">
-          <SeasonalHoverCards cards={seasonalCards} />
-        </div>
-      </section>
-
-      <BackToTop />
-                </>
+    </>
   );
 }
