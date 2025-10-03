@@ -60,9 +60,7 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
     } catch {}
 
     const defs = [
-      { selector: '[data-tour="tool-rectangle"]', title: 'Rectangle', content: 'Draw a rectangular area for analysis.' },
-      { selector: '[data-tour="tool-circle"]', title: 'Circle', content: 'Draw a circular area for analysis.' },
-      { selector: '[data-tour="tool-polygon"]', title: 'Polygon', content: 'Draw a custom polygon area for analysis.' },
+      { selector: '[data-tour="tools-shapes-group"]', title: 'Draw tools', content: 'Use Rectangle, Circle, or Polygon to draw an area for analysis.' },
       { selector: '[data-tour="tool-clear"]', title: 'Clear', content: 'Remove the drawn shape and reset the analysis.' },
       { selector: '[data-tour="tool-theme"]', title: 'Theme', content: 'Toggle between dark and light map themes.' },
       { selector: '[data-tour="input-month"]', title: 'Month', content: 'Select the month for the ecology analysis.' },
@@ -261,11 +259,13 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
     <>
       <div style={{ position: 'absolute', top: '80px', left: '24px', zIndex: 1000, background: '#0f172a', color: '#e5e7eb', padding: '14px', borderRadius: '10px', boxShadow: '0 2px 18px rgba(0,0,0,0.42)', display: 'flex', flexDirection: 'column', gap: '12px', minWidth: '320px' }}>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <button data-tour="tool-rectangle" onClick={() => handleToolSelect('rectangle')} style={btnStyle('rectangle')}>Rectangle</button>
+          <div data-tour="tools-shapes-group" style={{ display: 'flex', gap: '8px' }}>
+            <button data-tour="tool-rectangle" onClick={() => handleToolSelect('rectangle')} style={btnStyle('rectangle')}>Rectangle</button>
           <button data-tour="tool-circle" onClick={() => handleToolSelect('circle')} style={btnStyle('circle')}>Circle</button>
           <button data-tour="tool-polygon" onClick={() => handleToolSelect('polygon')} style={btnStyle('polygon')}>Polygon</button>
+          </div>
           <button data-tour="tool-clear" onClick={deleteSelectedShape} style={{...btnStyle(''), background: '#374151'}}>Clear</button>
-          <DayNight data-tour="tool-theme" checked={!darkMode} onChange={() => onToggleDarkMode()} style={{ fontSize: '8px' }} />
+<button data-tour="tool-theme" onClick={onToggleDarkMode} style={{...btnStyle(''), background: darkMode ? '#d97706' : '#1f2937' }}>{darkMode ? '☀️' : '🌙'}</button>
         </div>
         
         <div style={{ borderTop: '1px solid #374151', paddingTop: '12px', marginTop: '4px' }}>
