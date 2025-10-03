@@ -1,24 +1,15 @@
 "use client";
 
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  forwardRef,
-} from "react";
+import React, { useEffect, useRef, useState, forwardRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { LucideIcon } from "lucide-react";
-
-// Assuming these are external, import them
 import { cn } from "../lib/utils";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-// --- Component Props and Types ---
-// Define a type for a single feature object
 export interface FeatureItem {
   icon: LucideIcon;
   title: string;
@@ -26,94 +17,91 @@ export interface FeatureItem {
   image: string;
 }
 
-// Define the component's props interface
 export interface ScrollCarouselProps {
   features: FeatureItem[];
-  className?: string; // To allow external classes
-  maxScrollHeight?: number; // New optional prop for max scroll height
+  className?: string;
+  maxScrollHeight?: number;
 }
 
-// --- Custom Hook for Animations ---
 const initFeatureAnimations = (
   containerRef: React.MutableRefObject<HTMLDivElement | null>,
   scrollContainerRef: React.MutableRefObject<HTMLDivElement | null>,
-  scrollContainerRef2: React.MutableRefObject<HTMLDivElement | null>,
   progressBarRef: React.MutableRefObject<HTMLDivElement | null>,
   cardRefs: React.MutableRefObject<HTMLDivElement[]>,
-  cardRefs2: React.MutableRefObject<HTMLDivElement[]>,
   isDesktop: boolean,
   maxScrollHeight?: number
 ) => {
   if (typeof window === "undefined") return () => {};
   const ctx = gsap.context(() => {
-    // Desktop horizontal scroll logic
     if (isDesktop) {
-      const scrollWidth1 = scrollContainerRef.current?.scrollWidth || 0;
-      const scrollWidth2 = scrollContainerRef2.current?.scrollWidth || 0;
-      const containerWidth = containerRef.current?.offsetWidth || 0;
-      const cardWidth = cardRefs.current[0]?.offsetWidth || 0;
-      const viewportOffset = (containerWidth - cardWidth) / 2;
+      const setup = () => {
+        const scrollWidth = scrollContainerRef.current?.scrollWidth || 0;
+        const containerWidth = containerRef.current?.offsetWidth || 0;
+        const cardWidth = cardRefs.current[0]?.offsetWidth || 0;
+        const viewportOffset = (containerWidth - cardWidth) / 2;
 
-      const finalOffset1 = scrollWidth1 - containerWidth + viewportOffset;
-      const finalOffset2 = scrollWidth2 - containerWidth + viewportOffset;
+        const finalOffset = Math.max(0, scrollWidth - containerWidth + viewportOffset);
+        const scrollDistance = maxScrollHeight ?? finalOffset;
 
-      // Use the provided maxScrollHeight or the calculated offset as the scroll distance
-      // Reduce this distance to increase perceived scroll speed (smaller = faster)
-      const speedFactor = 0.5; // 0.5 => ~2x faster, adjust as needed
-      const scrollDistance = (maxScrollHeight || finalOffset1) * speedFactor;
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: "top top",
+              end: () => `+=${scrollDistance}`,
+              scrub: 1,
+              pin: true,
+            },
+          })
+          .fromTo(
+            scrollContainerRef.current,
+            { x: viewportOffset },
+            { x: -finalOffset + viewportOffset, ease: "none" }
+          );
 
-      gsap.set(scrollContainerRef2.current, {
-        x: -finalOffset2 + viewportOffset * 2,
-      });
-
-      gsap
-        .timeline({
+        gsap.to(progressBarRef.current, {
+          width: "100%",
+          ease: "none",
           scrollTrigger: {
             trigger: containerRef.current,
             start: "top top",
             end: () => `+=${scrollDistance}`,
-            scrub: 1,
-            pin: true,
+            scrub: true,
           },
-        })
-        .fromTo(
-          scrollContainerRef.current,
-          { x: viewportOffset },
-          { x: -finalOffset1 + viewportOffset, ease: "none" }
-        );
+        });
+        gsap.delayedCall(0.1, () => { try { ScrollTrigger.refresh(); } catch {} });
+      };
 
-      gsap
-        .timeline({
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top top",
-            end: () => `+=${scrollDistance}`,
-            scrub: 1,
-          },
-        })
-        .to(scrollContainerRef2.current, { x: viewportOffset, ease: "none" });
-
-      gsap.to(progressBarRef.current, {
-        width: "100%",
-        ease: "none",
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top top",
-          end: () => `+=${scrollDistance}`,
-          scrub: true,
-        },
-      });
+      const imgs = Array.from(
+        scrollContainerRef.current?.querySelectorAll('img') ?? []
+      ) as HTMLImageElement[];
+      const allLoaded = imgs.every((img) => img.complete);
+      if (allLoaded) {
+        setup();
+      } else {
+        let loaded = 0;
+        const onLoad = () => {
+          loaded += 1;
+          if (loaded >= imgs.length) {
+            setup();
+            imgs.forEach((im) => im.removeEventListener('load', onLoad));
+          }
+        };
+        imgs.forEach((im) => im.addEventListener('load', onLoad));
+        // Fallback in case some images are cached but not reporting complete immediately
+        setTimeout(() => {
+          try { setup(); } catch {}
+          imgs.forEach((im) => im.removeEventListener('load', onLoad));
+        }, 800);
+      }
     } else {
-      // Mobile vertical scroll logic
-      const allCards = [...cardRefs.current, ...cardRefs2.current];
+      // Mobile fade/slide-in for each card
+      const allCards = [...cardRefs.current];
       allCards.forEach((card, index) => {
         if (card) {
           gsap.fromTo(
             card,
-            {
-              opacity: 0,
-              x: index % 2 === 0 ? -200 : 200,
-            },
+            { opacity: 0, x: index % 2 === 0 ? -200 : 200 },
             {
               opacity: 1,
               x: 0,
@@ -137,19 +125,13 @@ const initFeatureAnimations = (
   };
 };
 
-// --- Component Definition ---
 export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
   ({ features, className, maxScrollHeight }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const scrollContainerRef2 = useRef<HTMLDivElement>(null);
     const progressBarRef = useRef<HTMLDivElement>(null);
     const cardRefs = useRef<HTMLDivElement[]>([]);
-    const cardRefs2 = useRef<HTMLDivElement[]>([]);
     const [isDesktop, setIsDesktop] = useState(false);
-
-    // Stable ordering for the second row to avoid SSR/client mismatches
-    const features2 = [...features];
 
     useEffect(() => {
       const checkDesktop = () => {
@@ -164,10 +146,8 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
       const cleanup = initFeatureAnimations(
         containerRef,
         scrollContainerRef,
-        scrollContainerRef2,
         progressBarRef,
         cardRefs,
-        cardRefs2,
         isDesktop,
         maxScrollHeight
       );
@@ -184,7 +164,7 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
           ref={(el: HTMLDivElement | null) => {
             if (el) refs.current[index] = el;
           }}
-          className="feature-card flex-shrink-0 w-full md:w-full h-full z-10 gap-4 group relative transition-all duration-300 ease-in-out"
+          className="feature-card flex-shrink-0 w-[85vw] sm:w-[70vw] md:w-[420px] lg:w-[520px] h-[220px] sm:h-[260px] md:h-[300px] lg:h-[340px] z-10 gap-4 group relative transition-all duration-300 ease-in-out"
         >
           <div
             className={cn(
@@ -203,7 +183,6 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
               alt=""
               className="absolute inset-0 w-full h-full object-cover z-[-1] rounded-3xl"
             />
-            {/* <RippleLoader className="!absolute z-[-1]" icon={feature.icon} /> */}
             <div className="absolute bottom-4 z-10 w-full px-4">
               <div
                 className={cn(
@@ -216,11 +195,6 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
                 <p className="text-white text-xs mb-4 opacity-60">
                   {feature.description}
                 </p>
-                {/* <img
-                  src={feature.image}
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-cover z-[-1] rounded-3xl blur-[5px]"
-                /> */}
               </div>
             </div>
             <div className="pointer-events-none absolute inset-0 transition-all duration-300 group-hover:bg-black/5 dark:group-hover:bg-white/5 centered:bg-black/5 dark:centered:bg-white/5 rounded-2xl group-hover:blur-md" />
@@ -238,20 +212,13 @@ export const ScrollCarousel = forwardRef<HTMLDivElement, ScrollCarouselProps>(
       >
         <div
           ref={containerRef}
-          className="relative overflow-hidden md:h-screen md:py-20 flex flex-col gap-0 z-10 lg:[mask-image:_linear-gradient(to_right,transparent_0,_black_5%,_black_95%,transparent_100%)]"
+          className="relative overflow-hidden md:h-[460px] py-8 md:py-10 flex flex-col gap-0 z-10 lg:[mask-image:_linear-gradient(to_right,transparent_0,_black_5%,_black_95%,transparent_100%)]"
         >
           <div
             ref={scrollContainerRef}
-            className="flex flex-col md:flex-row gap-8 items-center h-full px-6 md:px-0"
+            className="flex flex-col md:flex-row md:flex-nowrap gap-8 items-center h-full px-6 md:px-0"
           >
             {renderFeatureCards(features, cardRefs)}
-          </div>
-
-          <div
-            ref={scrollContainerRef2}
-            className="flex flex-col md:flex-row gap-8 items-center h-full px-6 md:px-0 hidden xl:flex"
-          >
-            {renderFeatureCards(features2, cardRefs2)}
           </div>
 
           {isDesktop && (
