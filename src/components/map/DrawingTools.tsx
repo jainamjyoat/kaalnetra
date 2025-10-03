@@ -164,9 +164,8 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
             position={result.location}
             title={result.biome_name}
             onClick={() => setActiveInfoWindow(result.biome)}
-          >
-             <span style={{ fontSize: '24px', transform: 'translate(-50%, -50%)' }}>📍</span>
-          </Marker>
+            label="📍"
+          />
           
           {activeInfoWindow === result.biome && (
             <InfoWindow
