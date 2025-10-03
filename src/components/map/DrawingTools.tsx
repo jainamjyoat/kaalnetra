@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Marker, InfoWindow, useMap } from '@vis.gl/react-google-maps';
+import DayNight from '@/components/Buttons/DayNight';
 
 // --- Type Definitions ---
 interface DrawingToolsProps {
@@ -264,7 +265,7 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
           <button data-tour="tool-circle" onClick={() => handleToolSelect('circle')} style={btnStyle('circle')}>Circle</button>
           <button data-tour="tool-polygon" onClick={() => handleToolSelect('polygon')} style={btnStyle('polygon')}>Polygon</button>
           <button data-tour="tool-clear" onClick={deleteSelectedShape} style={{...btnStyle(''), background: '#374151'}}>Clear</button>
-          <button data-tour="tool-theme" onClick={onToggleDarkMode} style={{...btnStyle(''), background: darkMode ? '#d97706' : '#1f2937' }}>{darkMode ? '☀️' : '🌙'}</button>
+          <DayNight data-tour="tool-theme" checked={!darkMode} onChange={() => onToggleDarkMode()} style={{ fontSize: '8px' }} />
         </div>
         
         <div style={{ borderTop: '1px solid #374151', paddingTop: '12px', marginTop: '4px' }}>
