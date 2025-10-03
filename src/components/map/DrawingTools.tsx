@@ -35,6 +35,61 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
   const [isLoadingAnalysis, setIsLoadingAnalysis] = useState<boolean>(false);
   const [activeInfoWindow, setActiveInfoWindow] = useState<string | null>(null); // <-- Will now store the biome code
 
+  // Guided tour state for DrawingTools controls
+  const [tourActive, setTourActive] = useState(false);
+  const [tourSteps, setTourSteps] = useState<{ el: HTMLElement; title: string; content: string }[]>([]);
+  const [tourIndex, setTourIndex] = useState(0);
+  const [tourRect, setTourRect] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+
+  // Initialize steps after mount
+  useEffect(() => {
+    const defs = [
+      { selector: '[data-tour="tool-rectangle"]', title: 'Rectangle', content: 'Draw a rectangular area for analysis.' },
+      { selector: '[data-tour="tool-circle"]', title: 'Circle', content: 'Draw a circular area for analysis.' },
+      { selector: '[data-tour="tool-polygon"]', title: 'Polygon', content: 'Draw a custom polygon area for analysis.' },
+      { selector: '[data-tour="tool-clear"]', title: 'Clear', content: 'Remove the drawn shape and reset the analysis.' },
+      { selector: '[data-tour="tool-theme"]', title: 'Theme', content: 'Toggle between dark and light map themes.' },
+      { selector: '[data-tour="input-month"]', title: 'Month', content: 'Select the month for the ecology analysis.' },
+      { selector: '[data-tour="input-year"]', title: 'Year', content: 'Select the year for the ecology analysis.' },
+      { selector: '[data-tour="run-analysis"]', title: 'Run Analysis', content: 'Run the ecology analysis for the selected shape and time.' },
+    ];
+    const available = defs
+      .map((d) => ({ ...d, el: document.querySelector(d.selector) as HTMLElement | null }))
+      .filter((d): d is { selector: string; title: string; content: string; el: HTMLElement } => !!d.el)
+      .map(({ el, title, content }) => ({ el, title, content }));
+
+    setTourSteps(available);
+    setTourIndex(0);
+    setTourActive(available.length > 0);
+  }, []);
+
+  // Keep spotlight aligned to current target and block interactions until advancing
+  useEffect(() => {
+    if (!tourActive || !tourSteps[tourIndex]?.el) {
+      setTourRect(null);
+      return;
+    }
+    const el = tourSteps[tourIndex].el;
+    const update = () => {
+      const r = el.getBoundingClientRect();
+      setTourRect({ top: r.top + window.scrollY, left: r.left + window.scrollX, width: r.width, height: r.height });
+    };
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('scroll', update, { passive: true } as AddEventListenerOptions);
+    el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update);
+    };
+  }, [tourActive, tourSteps, tourIndex]);
+
+  const nextTour = () => {
+    if (tourIndex < tourSteps.length - 1) setTourIndex((i) => i + 1);
+    else setTourActive(false);
+  };
+  const skipTour = () => setTourActive(false);
+
   useEffect(() => {
     if (!map) return;
     const manager = new google.maps.drawing.DrawingManager({
@@ -136,22 +191,22 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
     <>
       <div style={{ position: 'absolute', top: '80px', left: '24px', zIndex: 1000, background: '#0f172a', color: '#e5e7eb', padding: '14px', borderRadius: '10px', boxShadow: '0 2px 18px rgba(0,0,0,0.42)', display: 'flex', flexDirection: 'column', gap: '12px', minWidth: '320px' }}>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <button onClick={() => handleToolSelect('rectangle')} style={btnStyle('rectangle')}>Rectangle</button>
-          <button onClick={() => handleToolSelect('circle')} style={btnStyle('circle')}>Circle</button>
-          <button onClick={() => handleToolSelect('polygon')} style={btnStyle('polygon')}>Polygon</button>
-          <button onClick={deleteSelectedShape} style={{...btnStyle(''), background: '#374151'}}>Clear</button>
-          <button onClick={onToggleDarkMode} style={{...btnStyle(''), background: darkMode ? '#d97706' : '#1f2937' }}>{darkMode ? '☀️' : '🌙'}</button>
+          <button data-tour="tool-rectangle" onClick={() => handleToolSelect('rectangle')} style={btnStyle('rectangle')}>Rectangle</button>
+          <button data-tour="tool-circle" onClick={() => handleToolSelect('circle')} style={btnStyle('circle')}>Circle</button>
+          <button data-tour="tool-polygon" onClick={() => handleToolSelect('polygon')} style={btnStyle('polygon')}>Polygon</button>
+          <button data-tour="tool-clear" onClick={deleteSelectedShape} style={{...btnStyle(''), background: '#374151'}}>Clear</button>
+          <button data-tour="tool-theme" onClick={onToggleDarkMode} style={{...btnStyle(''), background: darkMode ? '#d97706' : '#1f2937' }}>{darkMode ? '☀️' : '🌙'}</button>
         </div>
         
         <div style={{ borderTop: '1px solid #374151', paddingTop: '12px', marginTop: '4px' }}>
           <h3 style={{ margin: '0 0 8px 0', fontSize: '14px' }}>🔬 Ecology Analysis</h3>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
             <label style={{fontSize: '12px'}}>Month:</label>
-            <input type="number" min="1" max="12" value={analysisMonth} onChange={(e) => setAnalysisMonth(parseInt(e.target.value))} style={{ width: '60px', background: '#1f2937', color: 'white', border: '1px solid #374151', borderRadius: '4px', padding: '4px' }}/>
+            <input data-tour="input-month" type="number" min="1" max="12" value={analysisMonth} onChange={(e) => setAnalysisMonth(parseInt(e.target.value))} style={{ width: '60px', background: '#1f2937', color: 'white', border: '1px solid #374151', borderRadius: '4px', padding: '4px' }}/>
             <label style={{fontSize: '12px'}}>Year:</label>
-            <input type="number" value={analysisYear} onChange={(e) => setAnalysisYear(parseInt(e.target.value))} style={{ width: '80px', background: '#1f2937', color: 'white', border: '1px solid #374151', borderRadius: '4px', padding: '4px' }}/>
+            <input data-tour="input-year" type="number" value={analysisYear} onChange={(e) => setAnalysisYear(parseInt(e.target.value))} style={{ width: '80px', background: '#1f2937', color: 'white', border: '1px solid #374151', borderRadius: '4px', padding: '4px' }}/>
           </div>
-          <button onClick={handleAnalysis} disabled={isLoadingAnalysis || shapes.length === 0} style={{ width: '100%', padding: '8px', border: '1px solid #059669', borderRadius: '4px', background: '#10b981', color: 'white', cursor: 'pointer', opacity: (isLoadingAnalysis || shapes.length === 0) ? 0.6 : 1 }}>
+          <button data-tour="run-analysis" onClick={handleAnalysis} disabled={isLoadingAnalysis || shapes.length === 0} style={{ width: '100%', padding: '8px', border: '1px solid #059669', borderRadius: '4px', background: '#10b981', color: 'white', cursor: 'pointer', opacity: (isLoadingAnalysis || shapes.length === 0) ? 0.6 : 1 }}>
             {isLoadingAnalysis ? 'Analyzing...' : 'Run Analysis'}
           </button>
         </div>
@@ -190,6 +245,61 @@ function DrawingTools({ darkMode, onToggleDarkMode, apiUrl }: DrawingToolsProps)
           )}
         </React.Fragment>
       ))}
+
+      {tourActive && tourRect && (
+        <>
+          {/* Overlay blocker to prevent interactions */}
+          <div
+            style={{ position: 'fixed', inset: 0, zIndex: 3000 }}
+            onClick={(e) => e.stopPropagation()}
+          />
+          {/* Spotlight highlight */}
+          <div
+            style={{
+              position: 'fixed',
+              top: tourRect.top - 8,
+              left: tourRect.left - 8,
+              width: tourRect.width + 16,
+              height: tourRect.height + 16,
+              borderRadius: 12,
+              boxShadow: '0 0 0 9999px rgba(0,0,0,0.6)',
+              border: '2px solid #34d399',
+              zIndex: 3001,
+              pointerEvents: 'none',
+            }}
+          />
+          {/* Tooltip */}
+          <div
+            style={{
+              position: 'fixed',
+              top: tourRect.top + tourRect.height + 12,
+              left: Math.max(tourRect.left, 16),
+              zIndex: 3002,
+              maxWidth: 340,
+            }}
+            className="rounded-md border border-white/10 bg-neutral-900/95 p-3 text-neutral-100 shadow-lg backdrop-blur"
+          >
+            <div className="text-sm font-semibold text-emerald-300">{tourSteps[tourIndex].title}</div>
+            <div className="text-sm text-neutral-300 mt-1">{tourSteps[tourIndex].content}</div>
+            <div className="mt-3 flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setTourActive(false)}
+                className="px-3 py-1 rounded-md border border-white/10 text-neutral-300 hover:bg-white/5"
+              >
+                Skip
+              </button>
+              <button
+                type="button"
+                onClick={nextTour}
+                className="px-3 py-1 rounded-md bg-emerald-500 text-white hover:bg-emerald-600"
+              >
+                {tourIndex === tourSteps.length - 1 ? 'Finish' : 'Next'}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }
