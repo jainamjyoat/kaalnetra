@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   compiler: {
     styledComponents: true,
   },
+  // Disable Lightning CSS to avoid native binary requirement on Vercel
+  experimental: {
+    optimizeCss: false,
+  },
 };
 
 export default nextConfig;
